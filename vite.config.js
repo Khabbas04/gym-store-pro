@@ -18,6 +18,6 @@ export default defineConfig({
         },
     },
     preview: {
-        allowedHosts: true
+        allowedHosts: ['sirius-o4v4.onrender.com', '.onrender.com']
     }
 });
