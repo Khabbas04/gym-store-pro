@@ -1,0 +1,20 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff4dd"/>
+      <stop offset="1" stop-color="#d8c89d"/>
+    </linearGradient>
+  </defs>
+  <g stroke="url(#gold)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 24 L150 66 L128 54 L106 66 Z"/>
+    <path d="M128 232 L150 190 L128 202 L106 190 Z"/>
+    <path d="M24 128 L66 106 L54 128 L66 150 Z"/>
+    <path d="M232 128 L190 106 L202 128 L190 150 Z"/>
+    <path d="M128 58 L172 102 L128 146 L84 102 Z"/>
+    <path d="M128 110 L146 128 L128 146 L110 128 Z"/>
+    <path d="M70 70 L88 96"/>
+    <path d="M186 70 L168 96"/>
+    <path d="M70 186 L88 160"/>
+    <path d="M186 186 L168 160"/>
+  </g>
+</svg>
