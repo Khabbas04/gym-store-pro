@@ -39,6 +39,23 @@ function AppRoutes() {
     const { user, logout } = useAuth();
     const location = useLocation();
 
+    React.useEffect(() => {
+        const path = location.pathname;
+        let pageTitle = 'SIRIUS - Premium Gym Apparel';
+        if (path === '/') pageTitle = 'Home | SIRIUS';
+        else if (path === '/shop') pageTitle = 'Shop Gym Store | SIRIUS';
+        else if (path.startsWith('/shop/')) pageTitle = 'Product Details | SIRIUS';
+        else if (path === '/cart') pageTitle = 'Your Cart | SIRIUS';
+        else if (path === '/wishlist') pageTitle = 'Your Wishlist | SIRIUS';
+        else if (path === '/checkout') pageTitle = 'Checkout | SIRIUS';
+        else if (path === '/orders') pageTitle = 'Your Orders | SIRIUS';
+        else if (path === '/login') pageTitle = 'Login | SIRIUS';
+        else if (path === '/register') pageTitle = 'Register | SIRIUS';
+        else if (path === '/admin') pageTitle = 'Admin Dashboard | SIRIUS';
+
+        document.title = pageTitle;
+    }, [location]);
+
     if (location.pathname === '/admin') {
         return <AdminRoute user={user} logout={logout} />;
     }
