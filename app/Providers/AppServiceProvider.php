@@ -25,5 +25,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Force HTTPS scheme in production/Vercel environments to prevent Mixed Content errors
+        if ($this->app->environment('production') || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }
