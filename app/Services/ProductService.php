@@ -136,8 +136,34 @@ class ProductService
 
         $image = $payload['image'] ?? ($product ? $product->image : null);
         if ($image instanceof \Illuminate\Http\UploadedFile) {
-            $path = $image->store('products', 'public');
-            $image = '/storage/' . $path;
+            $imgbbKey = env('IMGBB_API_KEY');
+            if ($imgbbKey) {
+                try {
+                    $response = \Illuminate\Support\Facades\Http::asMultipart()
+                        ->post('https://api.imgbb.com/1/upload', [
+                            'key' => $imgbbKey,
+                            'image' => base64_encode(file_get_contents($image->getPathname())),
+                        ]);
+
+                    if ($response->successful()) {
+                        $image = $response->json('data.url');
+                    } else {
+                        throw new \Exception('ImgBB response failed: ' . $response->body());
+                    }
+                } catch (\Throwable $e) {
+                    throw new \Exception('Failed to upload image to ImgBB CDN: ' . $e->getMessage());
+                }
+            } else {
+                try {
+                    $path = $image->store('products', 'public');
+                    $image = '/storage/' . $path;
+                } catch (\Throwable $e) {
+                    if (str_contains($e->getMessage(), 'Unable to create a directory')) {
+                        throw new \Exception('Vercel is read-only. To upload product images on Vercel, please register a free API Key on https://api.imgbb.com/ and add "IMGBB_API_KEY" to your Vercel Environment Variables.');
+                    }
+                    throw $e;
+                }
+            }
         }
 
         return [
