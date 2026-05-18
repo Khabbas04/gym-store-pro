@@ -4,7 +4,16 @@
     "outputDirectory": "public",
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.9.0"
+            "runtime": "vercel-php@0.9.0",
+            "includeFiles": [
+                "app/**",
+                "bootstrap/**",
+                "config/**",
+                "database/**",
+                "routes/**",
+                "vendor/**",
+                "public/**"
+            ]
         }
     },
     "routes": [
