@@ -16,6 +16,14 @@
             ]
         }
     },
+    "env": {
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
+        "SESSION_DRIVER": "cookie",
+        "LOG_CHANNEL": "stderr"
+    },
     "routes": [
         {
             "src": "/build/(.*)",
