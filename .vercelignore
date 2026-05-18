@@ -5,3 +5,4 @@
 /storage/*.key
 /storage/framework
 /storage/logs
+/public/index.php
