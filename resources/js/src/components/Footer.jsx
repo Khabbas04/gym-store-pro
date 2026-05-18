@@ -10,9 +10,9 @@ export default function Footer() {
             <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
                 <div className="grid gap-16 lg:grid-cols-4">
                     <div className="lg:col-span-2">
-                        <Link to="/" className="flex items-center gap-3">
-                            <img src="/images/icon.png?v=1" alt="Logo" className="h-8 w-8 object-contain" />
-                            <span className="text-xl font-black uppercase tracking-[0.3em] text-white">SIRIUS</span>
+                        <Link to="/" className="flex items-center gap-4">
+                            <img src="/images/icon.png?v=1" alt="Logo" className="h-12 w-12 object-contain" />
+                            <span className="text-3xl font-black uppercase tracking-[0.3em] text-white">SIRIUS</span>
                         </Link>
                         <p className="mt-8 max-w-sm text-sm font-medium leading-relaxed text-slate-400">
                             {t('footer_desc')}

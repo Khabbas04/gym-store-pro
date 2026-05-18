@@ -42,13 +42,13 @@ export default function Header({ user, onLogout }) {
         <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/60 backdrop-blur-2xl">
             <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4 sm:px-12">
                 <div className="flex items-center gap-12">
-                    <Link to="/" className="flex items-center gap-3">
+                    <Link to="/" className="flex items-center gap-4">
                         <img
                             src="/images/icon.png?v=1"
                             alt="Logo"
-                            className="h-10 w-10 object-contain brightness-110"
+                            className="h-14 w-14 object-contain brightness-110"
                         />
-                        <span className="text-xl font-black uppercase tracking-[0.3em] text-white">SIRIUS</span>
+                        <span className="text-3xl font-black uppercase tracking-[0.3em] text-white">SIRIUS</span>
                     </Link>
 
                     <nav className="hidden lg:flex items-center gap-8">
@@ -92,7 +92,7 @@ export default function Header({ user, onLogout }) {
                                     {displayUser}
                                 </span>
                                 <svg className={`h-3 w-3 text-slate-400 transition-transform ${accountOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="19 9l-7 7-7-7" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
 
