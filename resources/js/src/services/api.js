@@ -48,17 +48,30 @@ export function getProduct(id) {
 }
 
 export function createProduct(data) {
+    const isFormData = data instanceof FormData;
     return request('/api/products', {
         method: 'POST',
-        headers: withAuthHeaders({
-            ...JSON_HEADERS,
-            'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(data),
+        headers: withAuthHeaders(
+            isFormData ? JSON_HEADERS : { ...JSON_HEADERS, 'Content-Type': 'application/json' }
+        ),
+        body: isFormData ? data : JSON.stringify(data),
     });
 }
 
 export function updateProduct(id, data) {
+    const isFormData = data instanceof FormData;
+    if (isFormData) {
+        // Method spoofing for Laravel PUT with multipart/form-data
+        if (!data.has('_method')) {
+            data.append('_method', 'PUT');
+        }
+        return request(`/api/products/${id}`, {
+            method: 'POST',
+            headers: withAuthHeaders(JSON_HEADERS),
+            body: data,
+        });
+    }
+
     return request(`/api/products/${id}`, {
         method: 'PUT',
         headers: withAuthHeaders({

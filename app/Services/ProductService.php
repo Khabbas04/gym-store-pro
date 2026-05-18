@@ -134,6 +134,12 @@ class ProductService
             ? 24
             : max(0, (int) $stockValue);
 
+        $image = $payload['image'] ?? ($product ? $product->image : null);
+        if ($image instanceof \Illuminate\Http\UploadedFile) {
+            $path = $image->store('products', 'public');
+            $image = '/storage/' . $path;
+        }
+
         return [
             'name' => $payload['name'],
             'slug' => ($product && $product->name === $payload['name'])
@@ -141,7 +147,7 @@ class ProductService
                 : Str::slug($payload['name']).'-'.now()->timestamp,
             'description' => $payload['description'] ?? null,
             'price' => $payload['price'],
-            'image' => $payload['image'] ?? null,
+            'image' => $image,
             'category' => $payload['category'],
             'sizes' => isset($payload['sizes'])
                 ? (is_array($payload['sizes']) ? $payload['sizes'] : array_map('trim', explode(',', (string) $payload['sizes'])))

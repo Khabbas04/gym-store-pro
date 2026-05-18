@@ -37,6 +37,8 @@ export default function AdminPage({ section = 'overview' }) {
     const [productDrafts, setProductDrafts] = useState({});
     const [savingProductId, setSavingProductId] = useState(null);
     const [form, setForm] = useState(INITIAL_FORM);
+    const [imageSourceType, setImageSourceType] = useState('url');
+    const [imageFile, setImageFile] = useState(null);
     const [ordersQuery, setOrdersQuery] = useState({ q: '', status: '' });
     const [usersQuery, setUsersQuery] = useState('');
     const [error, setError] = useState('');
@@ -135,9 +137,26 @@ export default function AdminPage({ section = 'overview' }) {
         setMessage('');
 
         try {
-            await createProduct(form);
+            let payload;
+            if (imageSourceType === 'file' && imageFile) {
+                payload = new FormData();
+                payload.append('name', form.name);
+                payload.append('description', form.description || '');
+                payload.append('price', form.price);
+                payload.append('category', form.category);
+                payload.append('sizes', form.sizes || '');
+                payload.append('featured', form.featured ? '1' : '0');
+                payload.append('stock_quantity', String(form.stock_quantity ?? 24));
+                payload.append('is_popular', form.is_popular ? '1' : '0');
+                payload.append('image', imageFile);
+            } else {
+                payload = { ...form };
+            }
+
+            await createProduct(payload);
             setMessage(t('admin_msg_product_created'));
             setForm(INITIAL_FORM);
+            setImageFile(null);
             await reload();
         } catch (e) {
             setError(e.message || t('admin_error_create_failed'));
@@ -610,10 +629,57 @@ export default function AdminPage({ section = 'overview' }) {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_image_url')}</span>
-                                <input name="image" value={form.image} onChange={onInputChange} placeholder="https://..." className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
+                            {/* Image Source Selector */}
+                            <div className="space-y-2">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_image_source') || 'Image Source'}</span>
+                                <div className="grid grid-cols-2 gap-2 rounded-xl bg-black/45 p-1 border border-white/10">
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageSourceType('url')}
+                                        className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${imageSourceType === 'url' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.3)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                    >
+                                        🌐 {t('admin_image_link_url') || 'Link URL'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageSourceType('file')}
+                                        className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${imageSourceType === 'file' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.3)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                    >
+                                        📁 {t('admin_image_device_upload') || 'Device Upload'}
+                                    </button>
+                                </div>
                             </div>
+
+                            {imageSourceType === 'url' ? (
+                                <div className="space-y-1 animate-in fade-in duration-300">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_image_url')}</span>
+                                    <input 
+                                        name="image" 
+                                        value={form.image} 
+                                        onChange={onInputChange} 
+                                        placeholder="https://..." 
+                                        className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" 
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-1 animate-in fade-in duration-300">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_upload_image_file') || 'Upload Image File'}</span>
+                                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-white/10 rounded-xl bg-black/30 hover:bg-black/40 hover:border-[#f6eace]/30 cursor-pointer transition-all">
+                                        <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                                            <span className="text-lg">📷</span>
+                                            <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                                {imageFile ? imageFile.name : (t('admin_select_image_device') || 'Select image from device')}
+                                            </p>
+                                        </div>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={(e) => setImageFile(e.target.files[0])} 
+                                            className="hidden" 
+                                        />
+                                    </label>
+                                </div>
+                            )}
 
                             <div className="pt-2 grid grid-cols-2 gap-4">
                                 <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-black/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-black/40 transition-all select-none">
