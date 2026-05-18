@@ -14,7 +14,7 @@ class OrderService
     ) {
     }
 
-    public function checkout(User $user, array $payload): Order
+    public function checkout(?User $user, array $payload): Order
     {
         $normalizedItems = $this->cartService->buildNormalizedItems($payload['items']);
         $subtotal = $normalizedItems->sum('line_total');
@@ -23,7 +23,7 @@ class OrderService
 
         return DB::transaction(function () use ($user, $payload, $normalizedItems, $subtotal, $shippingFee, $total) {
             $order = Order::query()->create([
-                'user_id' => $user->id,
+                'user_id' => $user ? $user->id : null,
                 'order_number' => 'SIR-'.strtoupper(Str::random(8)),
                 'status' => Order::STATUS_PENDING,
                 'subtotal' => $subtotal,

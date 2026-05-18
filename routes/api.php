@@ -16,11 +16,11 @@ Route::get('/categories', [ProductApiController::class, 'categories']);
 
 Route::post('/auth/register', [AuthApiController::class, 'register']);
 Route::post('/auth/login', [AuthApiController::class, 'login']);
+Route::post('/checkout', [OrderApiController::class, 'checkout']);
 
 Route::middleware(['throttle:120,1', 'auth.token'])->group(function () {
 	Route::get('/auth/me', [AuthApiController::class, 'me']);
 	Route::post('/auth/logout', [AuthApiController::class, 'logout']);
-	Route::post('/checkout', [OrderApiController::class, 'checkout']);
 	Route::get('/orders/my', [OrderApiController::class, 'myOrders']);
 	Route::get('/orders/my/{order}', [OrderApiController::class, 'myOrderDetails']);
 	Route::get('/wishlist', [EngagementApiController::class, 'myWishlist']);

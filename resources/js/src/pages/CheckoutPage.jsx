@@ -33,10 +33,6 @@ export default function CheckoutPage() {
     const activeShippingFee = items.length ? getGovernorateShippingFee(form.city) : 0;
     const total = subtotal + activeShippingFee;
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
-
     function onInputChange(event) {
         const { name, value } = event.target;
         setForm((previous) => ({ ...previous, [name]: value }));
@@ -50,6 +46,7 @@ export default function CheckoutPage() {
         try {
             const payload = {
                 ...form,
+                customer_email: form.customer_email || `guest_${form.phone || Date.now()}@sirius.com`,
                 items: items.map((item) => ({
                     product_id: item.product_id,
                     quantity: item.quantity,
@@ -58,7 +55,26 @@ export default function CheckoutPage() {
             };
 
             const order = await checkoutOrder(payload);
+            
+            // Format order details for WhatsApp message redirection
+            const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '962796245133';
+            const itemsText = items.map(item => `• ${item.name} (${item.size || 'N/A'}) x${item.quantity}`).join('\n');
+            const message = `مرحباً SIRIUS، أود تأكيد طلبي:\n\n` +
+                `📦 *رقم الطلب:* ${order.order_number}\n` +
+                `👤 *الاسم:* ${form.customer_name}\n` +
+                `📞 *الهاتف:* ${form.phone}\n` +
+                `📍 *المحافظة:* ${form.city}\n` +
+                `🏠 *العنوان:* ${form.address_line}\n\n` +
+                `🛍️ *المنتجات:*\n${itemsText}\n\n` +
+                `💵 *المجموع الإجمالي:* ${total} JOD\n` +
+                (form.notes ? `📝 *ملاحظات:* ${form.notes}\n` : '') +
+                `\nشكراً لكم!`;
+                
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
             clearCart();
+            window.open(whatsappUrl, '_blank');
             navigate('/orders', { state: { orderNumber: order.order_number } });
         } catch (e) {
             setError(e.message || t('error_checkout_failed'));
@@ -98,7 +114,7 @@ export default function CheckoutPage() {
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('email')}</label>
-                                <input name="customer_email" type="email" value={form.customer_email} onChange={onInputChange} className="w-full border-b border-white/10 bg-transparent py-4 text-sm outline-none transition-colors focus:border-[#f6eace]" required />
+                                <input name="customer_email" type="email" value={form.customer_email} onChange={onInputChange} className="w-full border-b border-white/10 bg-transparent py-4 text-sm outline-none transition-colors focus:border-[#f6eace]" />
                             </div>
                             <div className="space-y-4">
                                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('phone')}</label>

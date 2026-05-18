@@ -46,7 +46,22 @@ export default function OrdersPage() {
                     </div>
                 </section>
                 <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
-                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-600">{t('please_login_orders')}</p>
+                    {location.state?.orderNumber ? (
+                        <div className="space-y-12">
+                            <div className="bg-emerald-500/5 border border-emerald-500/10 px-10 py-8">
+                                <h3 className="text-xl font-black uppercase tracking-[0.2em] text-emerald-400">
+                                    {language === 'ar' ? 'تم تقديم طلبك بنجاح!' : 'Order Placed Successfully!'}
+                                </h3>
+                                <p className="mt-4 text-sm text-slate-300 leading-relaxed">
+                                    {language === 'ar'
+                                        ? `رقم طلبك هو: ${location.state.orderNumber}. تم فتح المحادثة على واتساب لمشاركة تفاصيل طلبك معنا وتأكيده. سنتواصل معك قريباً لتوصيل طلبك!`
+                                        : `Your order number is: ${location.state.orderNumber}. WhatsApp has been opened to share your details and confirm the order. We will contact you soon for delivery!`}
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-600">{t('please_login_orders')}</p>
+                    )}
                 </section>
             </div>
         );

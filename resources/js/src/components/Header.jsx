@@ -14,9 +14,12 @@ export default function Header({ user, onLogout }) {
             { to: '/', label: t('nav_home'), end: true },
             { to: '/shop', label: t('nav_shop') },
             { to: '/cart', label: t('nav_cart'), badge: itemsCount },
-            { to: '/wishlist', label: t('nav_wishlist') },
-            { to: '/orders', label: t('nav_orders') },
         ];
+
+        if (user) {
+            baseItems.push({ to: '/wishlist', label: t('nav_wishlist') });
+            baseItems.push({ to: '/orders', label: t('nav_orders') });
+        }
 
         if (user?.role === 'admin') {
             baseItems.push({ to: '/admin', label: t('nav_dashboard') });
@@ -115,16 +118,7 @@ export default function Header({ user, onLogout }) {
                                 </div>
                             )}
                         </div>
-                    ) : (
-                        <div className="flex items-center gap-4">
-                            <Link to="/login" className="text-[10px] font-black uppercase tracking-[0.2em] text-white hover:text-[#f6eace]">
-                                {t('login')}
-                            </Link>
-                            <Link to="/register" className="rounded-full bg-white px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-black transition-transform hover:scale-105 active:scale-95">
-                                {t('signup')}
-                            </Link>
-                        </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </header>
