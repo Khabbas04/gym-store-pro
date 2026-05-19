@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 const SECTIONS = ['overview', 'orders', 'products', 'users', 'activity'];
 
 export default function AdminLayout({ user, onLogout, section, onSectionChange, children }) {
-    const { t } = useLanguage();
+    const { t, isArabic } = useLanguage();
 
     return (
         <div className="app-shell-bg min-h-screen text-white">
@@ -27,10 +27,10 @@ export default function AdminLayout({ user, onLogout, section, onSectionChange, 
                     </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
-                    <main>{children}</main>
+                <div className={`grid gap-6 ${isArabic ? 'lg:grid-cols-[260px_1fr]' : 'lg:grid-cols-[1fr_260px]'}`}>
+                    <main className={isArabic ? 'lg:order-2' : ''}>{children}</main>
 
-                    <aside className="rounded-3xl border border-white/10 bg-white/[0.05] p-4 lg:sticky lg:top-6 lg:h-fit">
+                    <aside className={`rounded-3xl border border-white/10 bg-white/[0.05] p-4 lg:sticky lg:top-6 lg:h-fit ${isArabic ? 'lg:order-1' : ''}`}>
                         <h2 className="mb-3 px-2 text-sm font-semibold text-slate-300">{t('admin_navigation')}</h2>
                         <div className="space-y-2">
                             {SECTIONS.map((item) => (

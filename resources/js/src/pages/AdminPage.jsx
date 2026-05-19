@@ -11,6 +11,7 @@ import {
     updateAdminOrder,
     updateAdminOrderStatus,
     updateAdminProductInventory,
+    updateProduct,
 } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { formatJOD } from '../utils/currency';
@@ -39,6 +40,21 @@ export default function AdminPage({ section = 'overview' }) {
     const [form, setForm] = useState(INITIAL_FORM);
     const [imageSourceType, setImageSourceType] = useState('url');
     const [imageFile, setImageFile] = useState(null);
+
+    // Additional Images for Product Creation
+    const [additionalImages, setAdditionalImages] = useState([]);
+
+    // Detailed Order modal
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+    // Product Editing modal states
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editingProductForm, setEditingProductForm] = useState(INITIAL_FORM);
+    const [editingMainImageSource, setEditingMainImageSource] = useState('url');
+    const [editingMainImageFile, setEditingMainImageFile] = useState(null);
+    const [editingAdditionalImages, setEditingAdditionalImages] = useState([]);
+    const [updatingProductBusy, setUpdatingProductBusy] = useState(false);
+
     const [ordersQuery, setOrdersQuery] = useState({ q: '', status: '' });
     const [usersQuery, setUsersQuery] = useState('');
     const [error, setError] = useState('');
@@ -131,6 +147,95 @@ export default function AdminPage({ section = 'overview' }) {
         }));
     }
 
+    function onEditingProductFormChange(event) {
+        const { name, value, type, checked } = event.target;
+        setEditingProductForm((previous) => ({
+            ...previous,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    }
+
+    function openProductEditor(product) {
+        setEditingProduct(product);
+        setEditingProductForm({
+            name: product.name || '',
+            description: product.description || '',
+            price: product.price || '',
+            image: product.image || '',
+            category: product.category || '',
+            sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : (product.sizes || ''),
+            featured: Boolean(product.featured),
+            stock_quantity: Number(product.stock_quantity || 0),
+            is_popular: Boolean(product.is_popular),
+        });
+        setEditingMainImageSource('url');
+        setEditingMainImageFile(null);
+        
+        // Populate existing additional images
+        const existingImages = (product.images || []).map((imgUrl, idx) => ({
+            id: `existing-${idx}-${Date.now()}`,
+            type: 'url',
+            value: imgUrl,
+            file: null
+        }));
+        setEditingAdditionalImages(existingImages);
+    }
+
+    async function onSaveProductEdits(event) {
+        event.preventDefault();
+        if (!editingProduct) return;
+
+        setError('');
+        setMessage('');
+        setUpdatingProductBusy(true);
+
+        try {
+            let payload;
+            const hasFiles = (editingMainImageSource === 'file' && editingMainImageFile) || 
+                             editingAdditionalImages.some(img => img.type === 'file' && img.file);
+
+            if (hasFiles) {
+                payload = new FormData();
+                payload.append('name', editingProductForm.name);
+                payload.append('description', editingProductForm.description || '');
+                payload.append('price', editingProductForm.price);
+                payload.append('category', editingProductForm.category);
+                payload.append('sizes', editingProductForm.sizes || '');
+                payload.append('featured', editingProductForm.featured ? '1' : '0');
+                payload.append('stock_quantity', String(editingProductForm.stock_quantity ?? 24));
+                payload.append('is_popular', editingProductForm.is_popular ? '1' : '0');
+
+                if (editingMainImageSource === 'file' && editingMainImageFile) {
+                    payload.append('image', editingMainImageFile);
+                } else {
+                    payload.append('image', editingProductForm.image || '');
+                }
+
+                editingAdditionalImages.forEach((img, idx) => {
+                    if (img.type === 'file' && img.file) {
+                        payload.append(`images[${idx}]`, img.file);
+                    } else if (img.type === 'url' && img.value) {
+                        payload.append(`images[${idx}]`, img.value);
+                    }
+                });
+            } else {
+                payload = {
+                    ...editingProductForm,
+                    images: editingAdditionalImages.filter(img => img.type === 'url' && img.value).map(img => img.value)
+                };
+            }
+
+            await updateProduct(editingProduct.id, payload);
+            setMessage(t('admin_msg_product_updated'));
+            setEditingProduct(null);
+            await reload();
+        } catch (e) {
+            setError(e.message || t('admin_error_update_failed'));
+        } finally {
+            setUpdatingProductBusy(false);
+        }
+    }
+
     async function onCreate(event) {
         event.preventDefault();
         setError('');
@@ -138,7 +243,9 @@ export default function AdminPage({ section = 'overview' }) {
 
         try {
             let payload;
-            if (imageSourceType === 'file' && imageFile) {
+            const hasFiles = (imageSourceType === 'file' && imageFile) || additionalImages.some(img => img.type === 'file' && img.file);
+            
+            if (hasFiles) {
                 payload = new FormData();
                 payload.append('name', form.name);
                 payload.append('description', form.description || '');
@@ -148,15 +255,32 @@ export default function AdminPage({ section = 'overview' }) {
                 payload.append('featured', form.featured ? '1' : '0');
                 payload.append('stock_quantity', String(form.stock_quantity ?? 24));
                 payload.append('is_popular', form.is_popular ? '1' : '0');
-                payload.append('image', imageFile);
+                
+                if (imageSourceType === 'file' && imageFile) {
+                    payload.append('image', imageFile);
+                } else {
+                    payload.append('image', form.image || '');
+                }
+
+                additionalImages.forEach((img, idx) => {
+                    if (img.type === 'file' && img.file) {
+                        payload.append(`images[${idx}]`, img.file);
+                    } else if (img.type === 'url' && img.value) {
+                        payload.append(`images[${idx}]`, img.value);
+                    }
+                });
             } else {
-                payload = { ...form };
+                payload = { 
+                    ...form,
+                    images: additionalImages.filter(img => img.type === 'url' && img.value).map(img => img.value)
+                };
             }
 
             await createProduct(payload);
             setMessage(t('admin_msg_product_created'));
             setForm(INITIAL_FORM);
             setImageFile(null);
+            setAdditionalImages([]);
             await reload();
         } catch (e) {
             setError(e.message || t('admin_error_create_failed'));
@@ -294,6 +418,97 @@ export default function AdminPage({ section = 'overview' }) {
         }
     }
 
+    const renderAdditionalImagesManager = (imagesArray, setImagesArray) => {
+        return (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-black/25 p-4 animate-in fade-in duration-300">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#f6eace]">{t('admin_additional_images')}</span>
+                    <button
+                        type="button"
+                        onClick={() => setImagesArray([...imagesArray, { id: Date.now(), type: 'url', value: '', file: null }])}
+                        className="rounded-lg bg-[#f6eace]/10 hover:bg-[#f6eace]/20 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#f6eace] transition-all"
+                    >
+                        ➕ {t('admin_add_image')}
+                    </button>
+                </div>
+                
+                {imagesArray.map((img, idx) => (
+                    <div key={img.id} className="relative rounded-xl border border-white/5 bg-black/35 p-3 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[9px] font-bold text-slate-500 uppercase">Image #{idx + 1}</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const next = [...imagesArray];
+                                        next[idx].type = next[idx].type === 'url' ? 'file' : 'url';
+                                        next[idx].value = '';
+                                        next[idx].file = null;
+                                        setImagesArray(next);
+                                    }}
+                                    className="rounded-md border border-white/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-white"
+                                >
+                                    {img.type === 'url' ? '🌐 URL' : '📁 Upload'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setImagesArray(imagesArray.filter(x => x.id !== img.id))}
+                                    className="text-slate-500 hover:text-red-400 text-xs transition-colors"
+                                >
+                                    ❌
+                                </button>
+                            </div>
+                        </div>
+
+                        {img.type === 'url' ? (
+                            <input
+                                type="text"
+                                value={img.value}
+                                onChange={(e) => {
+                                    const next = [...imagesArray];
+                                    next[idx].value = e.target.value;
+                                    setImagesArray(next);
+                                }}
+                                placeholder="https://..."
+                                className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none focus:border-[#f6eace]/30"
+                            />
+                        ) : (
+                            <label className="flex flex-col items-center justify-center w-full h-16 border border-dashed border-white/10 rounded-lg bg-black/25 hover:bg-black/35 cursor-pointer transition-all">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs">📷</span>
+                                    <p className="text-[9px] font-black uppercase text-slate-400">
+                                        {img.file ? img.file.name : t('admin_select_image_device')}
+                                    </p>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const next = [...imagesArray];
+                                        next[idx].file = e.target.files[0];
+                                        setImagesArray(next);
+                                    }}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
+
+                        {(img.value || img.file) && (
+                            <div className="h-12 w-12 overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                                <img
+                                    src={img.type === 'file' && img.file ? URL.createObjectURL(img.file) : img.value}
+                                    alt="Preview"
+                                    className="h-full w-full object-cover"
+                                    onError={(e) => { e.target.src = '/images/product-placeholder.svg'; }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {error && (
@@ -420,7 +635,7 @@ export default function AdminPage({ section = 'overview' }) {
                         {orders.map((order) => (
                             <article key={order.id} className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition-all duration-300 hover:border-white/10 hover:bg-white/[0.04]">
                                 <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <div className="space-y-1">
+                                    <div onClick={() => setSelectedOrder(order)} className="space-y-1 cursor-pointer hover:opacity-80 transition-opacity">
                                         <div className="flex items-center gap-3">
                                             <p className="text-xs font-black uppercase tracking-widest text-white group-hover:text-[#f6eace] transition-colors">{order.order_number}</p>
                                             <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest ${getStatusBadgeClass(order.status)}`}>
@@ -448,6 +663,7 @@ export default function AdminPage({ section = 'overview' }) {
                                             <option value="cancelled">{t('status_cancelled')}</option>
                                         </select>
                                         
+                                        <button type="button" onClick={() => setSelectedOrder(order)} className="rounded-xl border border-[#f6eace]/25 bg-[#f6eace]/5 hover:bg-[#f6eace]/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-[#f6eace] transition-all">🎫 {t('admin_ticket')}</button>
                                         <button type="button" onClick={() => openOrderEditor(order)} className="rounded-xl border border-blue-400/20 bg-blue-400/5 hover:bg-blue-400/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-blue-300 transition-all">{t('admin_edit')}</button>
                                         <button type="button" onClick={() => onDeleteOrder(order.id)} className="rounded-xl border border-red-400/20 bg-red-400/5 hover:bg-red-400/15 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-red-300 transition-all">{t('admin_delete_order')}</button>
                                     </div>
@@ -575,6 +791,15 @@ export default function AdminPage({ section = 'overview' }) {
                                                 {savingProductId === product.id ? '...' : t('admin_save')}
                                             </button>
 
+                                            {/* Edit Button */}
+                                            <button 
+                                                type="button" 
+                                                onClick={() => openProductEditor(product)} 
+                                                className="rounded-xl border border-[#f6eace]/25 bg-[#f6eace]/5 hover:bg-[#f6eace]/15 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-[#f6eace] transition-all"
+                                            >
+                                                ✏️
+                                            </button>
+
                                             {/* Delete Button */}
                                             <button onClick={() => onDelete(product.id)} className="rounded-xl border border-red-400/20 bg-red-400/5 hover:bg-red-400/15 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-300 transition-all">
                                                 ❌
@@ -682,15 +907,18 @@ export default function AdminPage({ section = 'overview' }) {
                             )}
 
                             <div className="pt-2 grid grid-cols-2 gap-4">
-                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-black/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-black/40 transition-all select-none">
-                                    <input name="featured" type="checkbox" checked={form.featured} onChange={onInputChange} className="h-4 w-4 rounded border-white/10 bg-black/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
+                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#000000]/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-[#000000]/40 transition-all select-none">
+                                    <input name="featured" type="checkbox" checked={form.featured} onChange={onInputChange} className="h-4 w-4 rounded border-white/10 bg-[#000000]/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
                                     <span className="font-bold uppercase tracking-widest text-[9px]">{t('admin_featured')}</span>
                                 </label>
-                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-black/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-black/40 transition-all select-none">
-                                    <input name="is_popular" type="checkbox" checked={Boolean(form.is_popular)} onChange={onInputChange} className="h-4 w-4 rounded border-white/10 bg-black/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
+                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#000000]/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-[#000000]/40 transition-all select-none">
+                                    <input name="is_popular" type="checkbox" checked={Boolean(form.is_popular)} onChange={onInputChange} className="h-4 w-4 rounded border-white/10 bg-[#000000]/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
                                     <span className="font-bold uppercase tracking-widest text-[9px]">{t('admin_popular')}</span>
                                 </label>
                             </div>
+
+                            {/* Additional Images Manager */}
+                            {renderAdditionalImagesManager(additionalImages, setAdditionalImages)}
 
                             <button className="w-full rounded-xl bg-[#f6eace] hover:bg-white py-4 font-black uppercase tracking-[0.25em] text-black transition-transform duration-150 active:scale-[0.98] shadow-lg hover:shadow-[0_0_25px_rgba(246,234,206,0.35)] mt-4">
                                 {t('admin_create_product_btn')}
@@ -769,6 +997,323 @@ export default function AdminPage({ section = 'overview' }) {
                         )}
                     </div>
                 </section>
+            )}
+
+            {/* Detailed Order Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#070b13] p-8 shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/30 to-transparent" />
+                        
+                        {/* Header */}
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                            <div>
+                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#f6eace]">Order Ticket</span>
+                                <h3 className="text-xl font-black uppercase tracking-widest text-white mt-1">{selectedOrder.order_number}</h3>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusBadgeClass(selectedOrder.status)}`}>
+                                    {statusLabel(selectedOrder.status, t)}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedOrder(null)}
+                                    className="text-slate-400 hover:text-white text-lg transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Content Area (Scrollable) */}
+                        <div className="flex-1 overflow-y-auto space-y-6 pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                            
+                            {/* Status Quick Update */}
+                            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 flex flex-wrap items-center justify-between gap-4">
+                                <div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_update_order_status') || 'Update Status'}</h4>
+                                    <p className="text-[11px] text-slate-500 mt-0.5">Quickly toggle delivery progression</p>
+                                </div>
+                                <select
+                                    value={selectedOrder.status}
+                                    onChange={async (event) => {
+                                        const nextStatus = event.target.value;
+                                        await onUpdateOrderStatus(selectedOrder.id, nextStatus);
+                                        setSelectedOrder(prev => ({ ...prev, status: nextStatus }));
+                                    }}
+                                    className="rounded-xl border border-white/15 bg-black/60 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer hover:border-white/30 transition-all"
+                                >
+                                    <option value="pending">{t('status_pending')}</option>
+                                    <option value="confirmed">{t('status_confirmed')}</option>
+                                    <option value="shipped">{t('status_shipped')}</option>
+                                    <option value="delivered">{t('status_delivered')}</option>
+                                    <option value="cancelled">{t('status_cancelled')}</option>
+                                </select>
+                            </div>
+
+                            <div className="grid gap-6 md:grid-cols-2">
+                                {/* Customer Information */}
+                                <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-4">
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-[#f6eace] border-b border-white/5 pb-2">📋 Customer Details</h4>
+                                    <div className="space-y-3 text-xs">
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{t('full_name')}:</span>
+                                            <p className="text-white font-bold mt-1 text-sm">{selectedOrder.customer_name}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{t('phone')}:</span>
+                                            <p className="text-[#f6eace] font-bold mt-1 text-sm select-all">📞 {selectedOrder.phone}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{t('governorate')}:</span>
+                                            <p className="text-white font-semibold mt-1">{selectedOrder.city}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{t('address_line')}:</span>
+                                            <p className="text-white leading-relaxed mt-1 font-medium">{selectedOrder.address_line}</p>
+                                        </div>
+                                        {selectedOrder.customer_email && !selectedOrder.customer_email.includes('guest_') && (
+                                            <div>
+                                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{t('email')}:</span>
+                                                <p className="text-slate-300 mt-1">{selectedOrder.customer_email}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Order Summary & Notes */}
+                                <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 flex flex-col justify-between space-y-4">
+                                    <div>
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-[#f6eace] border-b border-white/5 pb-2">📝 Order Notes</h4>
+                                        <p className="text-xs font-medium leading-relaxed text-slate-400 mt-3 italic">
+                                            {selectedOrder.notes || 'No special instructions provided by customer.'}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2 border-t border-white/5 pt-4">
+                                        <div className="flex justify-between text-xs text-slate-400">
+                                            <span>Payment Method:</span>
+                                            <span className="font-bold text-white uppercase tracking-wider">{selectedOrder.payment_method || 'COD'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs text-slate-400">
+                                            <span>Date:</span>
+                                            <span className="text-slate-300">{new Date(selectedOrder.created_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Order Items (Products Purchased) */}
+                            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 space-y-4">
+                                <h4 className="text-xs font-black uppercase tracking-widest text-[#f6eace] border-b border-white/5 pb-2">📦 Purchased Products</h4>
+                                <div className="space-y-4">
+                                    {(selectedOrder.items || []).map((item) => (
+                                        <div key={item.id} className="flex items-center justify-between gap-4 border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-14 w-14 overflow-hidden rounded-xl border border-white/10 bg-black/40">
+                                                    <img
+                                                        src={item.product?.image || '/images/product-placeholder.svg'}
+                                                        alt={item.product?.name || 'Product'}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black uppercase tracking-widest text-[#f6eace]">{item.product?.name || 'Unknown Product'}</p>
+                                                    <p className="text-[10px] text-slate-400 mt-1">
+                                                        Size: <span className="font-bold text-white">{item.size || 'N/A'}</span>
+                                                        <span className="mx-2 text-white/20">|</span>
+                                                        Qty: <span className="font-bold text-white">{item.quantity}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs font-black text-white">{formatJOD(item.price * item.quantity, language)}</p>
+                                                <p className="text-[10px] text-slate-500 mt-0.5">{item.quantity} × {formatJOD(item.price, language)}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Pricing Grid */}
+                                <div className="border-t border-white/10 pt-4 mt-6 space-y-2 text-xs">
+                                    <div className="flex justify-between text-slate-400">
+                                        <span>Subtotal:</span>
+                                        <span>{formatJOD(selectedOrder.subtotal, language)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-slate-400">
+                                        <span>Shipping Fee:</span>
+                                        <span>{formatJOD(selectedOrder.shipping_fee, language)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm font-black text-white pt-2 border-t border-white/5">
+                                        <span className="text-[#f6eace]">Grand Total:</span>
+                                        <span className="text-[#f6eace]">{formatJOD(selectedOrder.total, language)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Buttons */}
+                        <div className="mt-8 border-t border-white/10 pt-6 flex flex-wrap justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const itemsText = (selectedOrder.items || []).map(item => `- ${item.product?.name || 'Product'} (Size: ${item.size || 'N/A'}, Qty: ${item.quantity})`).join('\n');
+                                    const details = `Order: ${selectedOrder.order_number}\nCustomer: ${selectedOrder.customer_name}\nPhone: ${selectedOrder.phone}\nGovernorate: ${selectedOrder.city}\nAddress: ${selectedOrder.address_line}\n\nProducts:\n${itemsText}\n\nTotal: ${formatJOD(selectedOrder.total, 'en')}`;
+                                    navigator.clipboard.writeText(details);
+                                    alert('Order details copied to clipboard!');
+                                }}
+                                className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 hover:bg-emerald-400/15 px-5 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all"
+                            >
+                                📋 Copy Details
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedOrder(null)}
+                                className="rounded-xl border border-white/10 hover:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition-all"
+                            >
+                                {t('back')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Product Edit Modal */}
+            {editingProduct && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6 backdrop-blur-md animate-in fade-in duration-300">
+                    <form onSubmit={onSaveProductEdits} className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#0d131f] p-8 shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/30 to-transparent" />
+                        
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                            <h3 className="text-lg font-black uppercase tracking-[0.15em] text-[#f6eace]">
+                                {t('admin_edit_product_title') || 'Edit Product details'}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setEditingProduct(null)}
+                                className="text-slate-400 hover:text-white text-lg transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                            <div className="space-y-1">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_name')}</span>
+                                <input name="name" value={editingProductForm.name} onChange={onEditingProductFormChange} placeholder="e.g. Kinetic Performance Tee" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                            </div>
+
+                            <div className="space-y-1">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_description')}</span>
+                                <textarea name="description" value={editingProductForm.description} onChange={onEditingProductFormChange} placeholder="Describe product fabric..." rows={3} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_price')} (JD)</span>
+                                    <input name="price" value={editingProductForm.price} onChange={onEditingProductFormChange} type="number" step="0.01" placeholder="24.99" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_category')}</span>
+                                    <input name="category" value={editingProductForm.category} onChange={onEditingProductFormChange} placeholder="Men, Women, Accessories..." className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_stock')}</span>
+                                    <input name="stock_quantity" value={editingProductForm.stock_quantity || ''} onChange={onEditingProductFormChange} type="number" min="0" placeholder="50" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Sizes</span>
+                                    <input name="sizes" value={editingProductForm.sizes} onChange={onEditingProductFormChange} placeholder="S, M, L, XL" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
+                                </div>
+                            </div>
+
+                            {/* Main Image Source Selector */}
+                            <div className="space-y-2">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Main Image Source</span>
+                                <div className="grid grid-cols-2 gap-2 rounded-xl bg-black/45 p-1 border border-white/10">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingMainImageSource('url')}
+                                        className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${editingMainImageSource === 'url' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.35)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                    >
+                                        🌐 {t('admin_image_link_url') || 'Link URL'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingMainImageSource('file')}
+                                        className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${editingMainImageSource === 'file' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.35)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                    >
+                                        📁 {t('admin_image_device_upload') || 'Device Upload'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {editingMainImageSource === 'url' ? (
+                                <div className="space-y-1 animate-in fade-in duration-300">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_image_url')}</span>
+                                    <input 
+                                        name="image" 
+                                        value={editingProductForm.image} 
+                                        onChange={onEditingProductFormChange} 
+                                        placeholder="https://..." 
+                                        className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" 
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-1 animate-in fade-in duration-300">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_upload_image_file') || 'Upload Image File'}</span>
+                                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-white/10 rounded-xl bg-black/30 hover:bg-black/40 hover:border-[#f6eace]/30 cursor-pointer transition-all">
+                                        <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                                            <span className="text-lg">📷</span>
+                                            <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                                {editingMainImageFile ? editingMainImageFile.name : (t('admin_select_image_device') || 'Select image from device')}
+                                            </p>
+                                        </div>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={(e) => setEditingMainImageFile(e.target.files[0])} 
+                                            className="hidden" 
+                                        />
+                                    </label>
+                                </div>
+                            )}
+
+                            <div className="pt-2 grid grid-cols-2 gap-4">
+                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#000000]/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-[#000000]/40 transition-all select-none">
+                                    <input name="featured" type="checkbox" checked={editingProductForm.featured} onChange={onEditingProductFormChange} className="h-4 w-4 rounded border-white/10 bg-[#000000]/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
+                                    <span className="font-bold uppercase tracking-widest text-[9px]">{t('admin_featured')}</span>
+                                </label>
+                                <label className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#000000]/25 px-4 py-3 text-xs text-slate-300 cursor-pointer hover:bg-[#000000]/40 transition-all select-none">
+                                    <input name="is_popular" type="checkbox" checked={Boolean(editingProductForm.is_popular)} onChange={onEditingProductFormChange} className="h-4 w-4 rounded border-white/10 bg-[#000000]/50 text-[#f6eace] focus:ring-0 cursor-pointer" />
+                                    <span className="font-bold uppercase tracking-widest text-[9px]">{t('admin_popular')}</span>
+                                </label>
+                            </div>
+
+                            {/* Additional Images Section */}
+                            {renderAdditionalImagesManager(editingAdditionalImages, setEditingAdditionalImages)}
+                        </div>
+
+                        <div className="mt-8 border-t border-white/10 pt-6 flex flex-wrap justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setEditingProduct(null)}
+                                className="rounded-xl border border-white/10 hover:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition-all"
+                            >
+                                {t('back')}
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={updatingProductBusy}
+                                className="rounded-xl bg-[#f6eace] hover:bg-white px-8 py-3 text-xs font-black uppercase tracking-[0.2em] text-black transition-all disabled:opacity-50"
+                            >
+                                {updatingProductBusy ? 'Saving...' : t('admin_save')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             )}
         </div>
     );

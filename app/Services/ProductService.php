@@ -166,6 +166,41 @@ class ProductService
             }
         }
 
+        $images = [];
+        if (isset($payload['images']) && is_array($payload['images'])) {
+            foreach ($payload['images'] as $img) {
+                if ($img instanceof \Illuminate\Http\UploadedFile) {
+                    $imgbbKey = env('IMGBB_API_KEY');
+                    if ($imgbbKey) {
+                        try {
+                            $response = \Illuminate\Support\Facades\Http::asMultipart()
+                                ->post('https://api.imgbb.com/1/upload', [
+                                    'key' => $imgbbKey,
+                                    'image' => base64_encode(file_get_contents($img->getPathname())),
+                                ]);
+
+                            if ($response->successful()) {
+                                $images[] = $response->json('data.url');
+                            }
+                        } catch (\Throwable $e) {
+                            // ignore individual upload errors
+                        }
+                    } else {
+                        try {
+                            $path = $img->store('products', 'public');
+                            $images[] = '/storage/' . $path;
+                        } catch (\Throwable $e) {
+                            // ignore individual upload errors
+                        }
+                    }
+                } elseif (is_string($img) && !empty($img)) {
+                    $images[] = $img;
+                }
+            }
+        } elseif ($product) {
+            $images = $product->images ?? [];
+        }
+
         return [
             'name' => $payload['name'],
             'slug' => ($product && $product->name === $payload['name'])
@@ -174,6 +209,7 @@ class ProductService
             'description' => $payload['description'] ?? null,
             'price' => $payload['price'],
             'image' => $image,
+            'images' => $images,
             'category' => $payload['category'],
             'sizes' => isset($payload['sizes'])
                 ? (is_array($payload['sizes']) ? $payload['sizes'] : array_map('trim', explode(',', (string) $payload['sizes'])))

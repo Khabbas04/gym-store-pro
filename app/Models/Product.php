@@ -17,6 +17,7 @@ class Product extends Model
         'description',
         'price',
         'image',
+        'images',
         'category',
         'sizes',
         'featured',
@@ -26,6 +27,7 @@ class Product extends Model
 
     protected $casts = [
         'sizes' => 'array',
+        'images' => 'array',
         'featured' => 'boolean',
         'is_popular' => 'boolean',
         'stock_quantity' => 'integer',

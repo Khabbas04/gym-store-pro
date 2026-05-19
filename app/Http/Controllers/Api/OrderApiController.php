@@ -103,6 +103,7 @@ class OrderApiController extends Controller
     public function adminOrders(Request $request): JsonResponse
     {
         $orders = Order::query()
+            ->with(['items.product'])
             ->withCount('items')
             ->when($request->filled('status'), function (Builder $query) use ($request) {
                 $query->where('status', (string) $request->string('status'));

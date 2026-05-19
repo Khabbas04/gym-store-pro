@@ -23,6 +23,7 @@ export default function ProductPage() {
     const [wishlisted, setWishlisted] = useState(false);
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
     const [reviewBusy, setReviewBusy] = useState(false);
+    const [activeImage, setActiveImage] = useState('');
     const stockQuantity = Number(product?.stock_quantity);
     const isInStock = !product || Number.isNaN(stockQuantity) ? true : stockQuantity > 0;
     const relatedProducts = product?.related_products || [];
@@ -36,6 +37,7 @@ export default function ProductPage() {
             .then(([result, reviewsResult]) => {
                 setProduct(result);
                 setReviews(reviewsResult.data || []);
+                setActiveImage(result?.image || '');
                 const firstSize = result?.sizes?.[0] || '';
                 setSize(firstSize);
 
@@ -80,12 +82,37 @@ export default function ProductPage() {
             <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                 <div className="grid gap-24 lg:grid-cols-2">
                     {/* Image Gallery */}
-                    <div className="aspect-[3/4] overflow-hidden bg-[#0a1019]">
-                        <img 
-                            src={product.image || '/images/product-placeholder.svg'} 
-                            alt={product.name} 
-                            className="h-full w-full object-cover" 
-                        />
+                    <div className="space-y-6">
+                        <div className="aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/5 shadow-2xl relative group">
+                            <img 
+                                src={activeImage || product.image || '/images/product-placeholder.svg'} 
+                                alt={product.name} 
+                                className="h-full w-full object-cover transition-all duration-500 hover:scale-105" 
+                            />
+                        </div>
+                        {/* Thumbnails */}
+                        {(() => {
+                            const allImages = [product.image, ...(product.images || [])].filter(Boolean);
+                            if (allImages.length <= 1) return null;
+                            return (
+                                <div className="flex gap-4 overflow-x-auto py-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#f6eace]/20">
+                                    {allImages.map((imgUrl, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            onClick={() => setActiveImage(imgUrl)}
+                                            className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border bg-[#0a1019] transition-all duration-300 ${
+                                                activeImage === imgUrl 
+                                                ? 'border-[#f6eace] ring-4 ring-[#f6eace]/15 scale-95' 
+                                                : 'border-white/10 opacity-70 hover:border-white/30 hover:opacity-100'
+                                            }`}
+                                        >
+                                            <img src={imgUrl} alt={`${product.name} - ${index}`} className="h-full w-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
+                            );
+                        })()}
                     </div>
 
                     {/* Info */}
