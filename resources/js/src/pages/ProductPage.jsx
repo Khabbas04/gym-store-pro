@@ -323,7 +323,7 @@ export default function ProductPage() {
                 <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
                     <div className="mb-24">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('reviews')}</span>
-                        <h2 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-6xl">{t('customers_feedback') || 'Customer Feedback'}</h2>
+                        <h2 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-6xl">{t('customer_reviews') || 'Customer Reviews'}</h2>
                     </div>
 
                     <div className="max-w-4xl">
