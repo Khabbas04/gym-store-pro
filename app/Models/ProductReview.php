@@ -15,10 +15,13 @@ class ProductReview extends Model
         'user_id',
         'rating',
         'comment',
+        'status',
+        'show_on_homepage',
     ];
 
     protected $casts = [
         'rating' => 'integer',
+        'show_on_homepage' => 'boolean',
     ];
 
     public function product(): BelongsTo

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
-const SECTIONS = ['overview', 'orders', 'products', 'collections', 'users', 'activity'];
+const SECTIONS = ['overview', 'orders', 'products', 'collections', 'users', 'reviews', 'activity'];
 
 export default function AdminLayout({ user, onLogout, section, onSectionChange, children }) {
     const { t, isArabic } = useLanguage();
@@ -65,6 +65,7 @@ export default function AdminLayout({ user, onLogout, section, onSectionChange, 
                                         {item === 'products' && '👟'}
                                         {item === 'collections' && '✨'}
                                         {item === 'users' && '👥'}
+                                        {item === 'reviews' && '⭐'}
                                         {item === 'activity' && '⚡'}
                                     </span>
                                     <span>{t(`admin_tab_${item}`)}</span>

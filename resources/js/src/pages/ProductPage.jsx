@@ -308,7 +308,7 @@ export default function ProductPage() {
                         <h2 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-6xl">{t('customers_feedback') || 'Customer Feedback'}</h2>
                     </div>
 
-                    <div className="grid gap-24 lg:grid-cols-2">
+                    <div className="max-w-4xl">
                         {/* Review List */}
                         <div className="space-y-16">
                             {reviews.map((review) => (
@@ -330,56 +330,6 @@ export default function ProductPage() {
                             ))}
                             {!reviews.length && <p className="text-[11px] font-black uppercase tracking-widest text-slate-600">{t('no_reviews_yet')}</p>}
                         </div>
-
-                        {/* Review Form */}
-                        {user && (
-                            <div className="bg-white/5 p-16">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">{t('write_your_review')}</h4>
-                                <form
-                                    className="mt-12 space-y-10"
-                                    onSubmit={async (e) => {
-                                        e.preventDefault();
-                                        setReviewBusy(true);
-                                        try {
-                                            await upsertProductReview(product.id, reviewForm);
-                                            const latest = await getProductReviews(product.id);
-                                            setReviews(latest.data || []);
-                                            setReviewForm({ rating: 5, comment: '' });
-                                            pushToast(t('review_saved'), 'success');
-                                        } finally {
-                                            setReviewBusy(false);
-                                        }
-                                    }}
-                                >
-                                    <div className="space-y-4">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('rating') || 'Rating'}</label>
-                                        <select
-                                            value={reviewForm.rating}
-                                            onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })}
-                                            className="w-full border-b border-white/10 bg-transparent py-4 text-sm outline-none transition-colors focus:border-[#f6eace] cursor-pointer"
-                                        >
-                                            {[5, 4, 3, 2, 1].map((s) => <option key={s} value={s} className="bg-[#0a1019]">{s} / 5</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('write_your_review')}</label>
-                                        <textarea
-                                            value={reviewForm.comment}
-                                            onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                                            rows={4}
-                                            className="w-full border-b border-white/10 bg-transparent py-4 text-sm outline-none transition-colors focus:border-[#f6eace] placeholder:text-slate-700"
-                                            placeholder={t('review_placeholder') || 'Share your thoughts...'}
-                                        />
-                                    </div>
-                                    <button 
-                                        disabled={reviewBusy}
-                                        className="w-full bg-[#f6eace] py-6 text-sm font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50"
-                                    >
-                                        {reviewBusy ? t('saving') : t('submit_review')}
-                                    </button>
-                                </form>
-                            </div>
-                        )}
                     </div>
                 </div>
             </section>

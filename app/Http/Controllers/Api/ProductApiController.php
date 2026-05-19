@@ -145,9 +145,21 @@ class ProductApiController extends Controller
     {
         $sections = $this->productService->getHomepageSections();
 
+        $hasReviews = Schema::hasTable('product_reviews');
+        $homepageReviews = [];
+        if ($hasReviews) {
+            $homepageReviews = \App\Models\ProductReview::query()
+                ->where('status', 'approved')
+                ->where('show_on_homepage', true)
+                ->with(['user', 'product'])
+                ->latest()
+                ->get();
+        }
+
         return response()->json([
             'featured' => $this->transformProducts($sections['featured']),
             'popular' => $this->transformProducts($sections['popular']),
+            'reviews' => \App\Http\Resources\ReviewResource::collection($homepageReviews)->resolve(),
         ]);
     }
 

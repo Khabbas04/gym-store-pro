@@ -16,6 +16,10 @@ import {
     createCollection,
     updateCollection,
     deleteCollection,
+    getAdminReviews,
+    updateAdminReviewStatus,
+    toggleAdminReviewHomepage,
+    deleteAdminReview,
 } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { formatJOD } from '../utils/currency';
@@ -41,6 +45,8 @@ export default function AdminPage({ section = 'overview' }) {
     const [users, setUsers] = useState([]);
     const [collections, setCollections] = useState([]);
     const [activityLogs, setActivityLogs] = useState([]);
+    const [adminReviewsList, setAdminReviewsList] = useState([]);
+    const [reviewsQuery, setReviewsQuery] = useState({ status: '', q: '' });
     const [productDrafts, setProductDrafts] = useState({});
     const [savingProductId, setSavingProductId] = useState(null);
     const [form, setForm] = useState(INITIAL_FORM);
@@ -139,7 +145,7 @@ export default function AdminPage({ section = 'overview' }) {
 
     useEffect(() => {
         reload();
-    }, [ordersQuery, usersQuery, activityQuery, section]);
+    }, [ordersQuery, usersQuery, activityQuery, reviewsQuery, section]);
 
     useEffect(() => {
         const nextDrafts = {};
@@ -192,6 +198,15 @@ export default function AdminPage({ section = 'overview' }) {
                     setActivityLogs(activityData.data || []);
                 } catch {
                     setActivityLogs([]);
+                }
+            }
+
+            if (section === 'reviews') {
+                try {
+                    const reviewsData = await getAdminReviews(reviewsQuery);
+                    setAdminReviewsList(reviewsData.data || []);
+                } catch {
+                    setAdminReviewsList([]);
                 }
             }
 
@@ -1346,6 +1361,177 @@ export default function AdminPage({ section = 'overview' }) {
                         {!activityLogs.length && (
                             <div className="text-center py-16">
                                 <p className="text-xs font-black uppercase tracking-widest text-slate-500">{t('admin_activity_empty')}</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
+
+            {section === 'reviews' && (
+                <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.01] p-6 backdrop-blur-2xl animate-in fade-in duration-500">
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/20 to-transparent" />
+                    
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-[#f6eace]">{t('admin_tab_reviews') || 'Reviews'}</h2>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
+                                {adminReviewsList.length}
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <select
+                                value={reviewsQuery.status}
+                                onChange={(e) => setReviewsQuery(prev => ({ ...prev, status: e.target.value }))}
+                                className="rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-xs text-white outline-none cursor-pointer focus:border-[#f6eace]/40 transition-all"
+                            >
+                                <option value="">{language === 'ar' ? 'جميع التقييمات' : 'All Reviews'}</option>
+                                <option value="pending">{language === 'ar' ? 'معلق بانتظار الموافقة' : 'Pending Approval'}</option>
+                                <option value="approved">{language === 'ar' ? 'مقبول' : 'Approved'}</option>
+                                <option value="rejected">{language === 'ar' ? 'مرفوض' : 'Rejected'}</option>
+                            </select>
+                            
+                            <input
+                                value={reviewsQuery.q}
+                                onChange={(e) => setReviewsQuery(prev => ({ ...prev, q: e.target.value }))}
+                                placeholder={language === 'ar' ? 'بحث باسم العميل أو المنتج...' : 'Search customer or product name...'}
+                                className="min-w-[200px] rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all"
+                            />
+                            
+                            <button onClick={reload} className="rounded-xl border border-[#f6eace]/40 bg-[#f6eace]/5 hover:bg-[#f6eace]/10 px-5 py-2.5 text-xs font-black uppercase tracking-[0.2em] text-[#f6eace] transition-all">
+                                {t('admin_refresh')}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        {adminReviewsList.map((review) => (
+                            <div key={review.id} className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all duration-300 hover:border-white/10 hover:bg-white/[0.04]">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                    <div className="space-y-3 flex-1">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <span className="text-xs font-black text-white">{review.user?.name || (language === 'ar' ? 'عميل SIRIUS' : 'SIRIUS Customer')}</span>
+                                            {review.user?.email && !review.user.email.includes('guest_') && (
+                                                <span className="text-[10px] text-slate-500 font-medium">({review.user.email})</span>
+                                            )}
+                                            <span className="text-[#f6eace] text-sm">
+                                                {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                                            </span>
+                                            <span className={`inline-flex rounded-full border px-2 py-0.5 text-[8px] font-black uppercase tracking-wider ${
+                                                review.status === 'approved' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400' :
+                                                review.status === 'rejected' ? 'border-red-500/30 bg-red-500/10 text-red-400' :
+                                                'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                                            }`}>
+                                                {review.status}
+                                            </span>
+                                            {review.show_on_homepage ? (
+                                                <span className="inline-flex rounded-full border border-[#f6eace]/30 bg-[#f6eace]/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#f6eace]">
+                                                    🏠 {language === 'ar' ? 'معروض في الرئيسية' : 'Featured on Home'}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3 bg-black/20 border border-white/5 p-3 rounded-xl max-w-md">
+                                            <img
+                                                src={review.product?.image || '/images/product-placeholder.svg'}
+                                                alt={review.product?.name || 'Product'}
+                                                className="h-10 w-10 object-cover rounded-lg border border-white/10"
+                                            />
+                                            <div>
+                                                <span className="text-[9px] font-bold text-slate-500 uppercase">{language === 'ar' ? 'المنتج' : 'Product'}</span>
+                                                <p className="text-xs font-bold text-slate-300">{review.product?.name || 'Unknown Product'}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <p className="text-xs leading-relaxed text-slate-300 italic">
+                                            " {review.comment} "
+                                        </p>
+                                        
+                                        <p className="text-[9px] text-slate-600 font-semibold">
+                                            {new Date(review.created_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}
+                                        </p>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap items-center gap-2 md:self-center">
+                                        {review.status !== 'approved' && (
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await updateAdminReviewStatus(review.id, 'approved');
+                                                        setMessage(language === 'ar' ? 'تم قبول التقييم بنجاح' : 'Review approved successfully');
+                                                        reload();
+                                                    } catch (e) {
+                                                        setError(e.message || 'Action failed');
+                                                    }
+                                                }}
+                                                className="rounded-lg bg-emerald-500 hover:bg-emerald-600 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-black transition-all"
+                                            >
+                                                {language === 'ar' ? '✔ موافقة' : '✔ Approve'}
+                                            </button>
+                                        )}
+                                        {review.status !== 'rejected' && (
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await updateAdminReviewStatus(review.id, 'rejected');
+                                                        setMessage(language === 'ar' ? 'تم رفض التقييم' : 'Review rejected');
+                                                        reload();
+                                                    } catch (e) {
+                                                        setError(e.message || 'Action failed');
+                                                    }
+                                                }}
+                                                className="rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-amber-400 transition-all"
+                                            >
+                                                {language === 'ar' ? '✖ رفض' : '✖ Reject'}
+                                            </button>
+                                        )}
+                                        {review.status === 'approved' && (
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await toggleAdminReviewHomepage(review.id);
+                                                        setMessage(language === 'ar' ? 'تم تعديل حالة العرض على الصفحة الرئيسية' : 'Homepage visibility toggled');
+                                                        reload();
+                                                    } catch (e) {
+                                                        setError(e.message || 'Action failed');
+                                                    }
+                                                }}
+                                                className={`rounded-lg px-3.5 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+                                                    review.show_on_homepage 
+                                                    ? 'bg-[#f6eace] hover:bg-white text-black font-black' 
+                                                    : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+                                                }`}
+                                            >
+                                                {review.show_on_homepage 
+                                                    ? (language === 'ar' ? '🏠 إزالة من الرئيسية' : '🏠 Remove from Home')
+                                                    : (language === 'ar' ? '🏠 عرض في الرئيسية' : '🏠 Show on Home')
+                                                }
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={async () => {
+                                                if (!window.confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا التقييم؟' : 'Are you sure you want to delete this review?')) return;
+                                                try {
+                                                    await deleteAdminReview(review.id);
+                                                    setMessage(language === 'ar' ? 'تم حذف التقييم' : 'Review deleted');
+                                                    reload();
+                                                } catch (e) {
+                                                    setError(e.message || 'Action failed');
+                                                }
+                                            }}
+                                            className="rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-red-400 transition-all"
+                                        >
+                                            {t('admin_delete')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+
+                        {!adminReviewsList.length && (
+                            <div className="text-center py-20">
+                                <p className="text-xs font-black uppercase tracking-widest text-slate-500">
+                                    {language === 'ar' ? 'لا توجد تقييمات مطابقة للبحث' : 'No reviews found matching filters.'}
+                                </p>
                             </div>
                         )}
                     </div>

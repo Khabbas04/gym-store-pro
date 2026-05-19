@@ -86,6 +86,7 @@ class EngagementApiController extends Controller
 
         $reviews = ProductReview::query()
             ->where('product_id', $product->id)
+            ->where('status', 'approved')
             ->with('user')
             ->latest()
             ->paginate(10);
@@ -101,10 +102,39 @@ class EngagementApiController extends Controller
         ]);
     }
 
+    public function homepageReviews(Request $request): JsonResponse
+    {
+        if (! Schema::hasTable('product_reviews')) {
+            return response()->json([]);
+        }
+
+        $reviews = ProductReview::query()
+            ->where('status', 'approved')
+            ->where('show_on_homepage', true)
+            ->with(['user', 'product'])
+            ->latest()
+            ->take(6)
+            ->get();
+
+        return response()->json(ReviewResource::collection($reviews));
+    }
+
     public function upsertReview(StoreReviewRequest $request, Product $product): JsonResponse
     {
         if (! Schema::hasTable('product_reviews')) {
             return response()->json(['message' => 'Reviews are unavailable right now.'], 200);
+        }
+
+        // Validate that user has purchased the product (completed order / exists in order_items)
+        $hasOrdered = \App\Models\Order::query()
+            ->where('user_id', $request->user()->id)
+            ->whereHas('items', function ($query) use ($product) {
+                $query->where('product_id', $product->id);
+            })
+            ->exists();
+
+        if (!$hasOrdered) {
+            return response()->json(['message' => 'You can only review products you have purchased.'], 403);
         }
 
         $review = ProductReview::query()->updateOrCreate(
@@ -112,7 +142,7 @@ class EngagementApiController extends Controller
                 'product_id' => $product->id,
                 'user_id' => $request->user()->id,
             ],
-            $request->validated()
+            array_merge($request->validated(), ['status' => 'pending'])
         );
 
         return response()->json(ReviewResource::make($review->load('user')));
@@ -153,5 +183,55 @@ class EngagementApiController extends Controller
         }
 
         return response()->json(ProductResource::collection($products));
+    }
+
+    public function adminReviews(Request $request): JsonResponse
+    {
+        if (! Schema::hasTable('product_reviews')) {
+            return response()->json([
+                'data' => [],
+                'meta' => ['current_page' => 1, 'last_page' => 1, 'per_page' => 15, 'total' => 0],
+            ]);
+        }
+
+        $reviews = ProductReview::query()
+            ->with(['user', 'product'])
+            ->latest()
+            ->paginate(15);
+
+        return response()->json([
+            'data' => ReviewResource::collection($reviews->items())->load('product'),
+            'meta' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'per_page' => $reviews->perPage(),
+                'total' => $reviews->total(),
+            ],
+        ]);
+    }
+
+    public function adminUpdateReviewStatus(Request $request, ProductReview $review): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:pending,approved,rejected',
+        ]);
+
+        $review->update(['status' => $validated['status']]);
+
+        return response()->json(ReviewResource::make($review->load(['user', 'product'])));
+    }
+
+    public function adminToggleReviewHomepage(Request $request, ProductReview $review): JsonResponse
+    {
+        $review->update(['show_on_homepage' => !$review->show_on_homepage]);
+
+        return response()->json(ReviewResource::make($review->load(['user', 'product'])));
+    }
+
+    public function adminDeleteReview(ProductReview $review): JsonResponse
+    {
+        $review->delete();
+
+        return response()->json(null, 204);
     }
 }

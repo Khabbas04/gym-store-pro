@@ -1,20 +1,58 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import PageHeader, { StatChip } from '../components/ui/PageHeader';
-import { getMyOrders } from '../services/api';
+import { getMyOrders, upsertProductReview } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 import { formatJOD } from '../utils/currency';
 
 export default function OrdersPage() {
     const location = useLocation();
     const { user } = useAuth();
     const { t, language } = useLanguage();
+    const { pushToast } = useToast();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
     const orderCount = orders.length;
+
+    // Review Modal States
+    const [reviewModalOpen, setReviewModalOpen] = useState(false);
+    const [activeProductId, setActiveProductId] = useState(null);
+    const [activeProductName, setActiveProductName] = useState('');
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+    const [submittingReview, setSubmittingReview] = useState(false);
+
+    const handleOpenReviewModal = (productId, productName) => {
+        setActiveProductId(productId);
+        setActiveProductName(productName);
+        setRating(5);
+        setComment('');
+        setReviewModalOpen(false);
+        setTimeout(() => setReviewModalOpen(true), 50);
+    };
+
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        if (!comment.trim()) {
+            pushToast(language === 'ar' ? 'الرجاء كتابة تعليقك' : 'Please enter your comment', 'error');
+            return;
+        }
+        setSubmittingReview(true);
+        try {
+            await upsertProductReview(activeProductId, { rating, comment });
+            pushToast(language === 'ar' ? 'تم إرسال تقييمك للأدمن للموافقة عليه بنجاح!' : 'Your review was submitted for admin approval!', 'success');
+            setReviewModalOpen(false);
+        } catch (err) {
+            pushToast(err.message || (language === 'ar' ? 'فشل إرسال التقييم' : 'Failed to submit review'), 'error');
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
     const pendingCount = useMemo(
         () => orders.filter((order) => String(order.status || '').toLowerCase() === 'pending').length,
         [orders]
@@ -167,21 +205,54 @@ export default function OrdersPage() {
 
                     <div className="divide-y divide-white/5">
                         {!loading && orders.map((order) => (
-                            <div key={order.id} className="grid gap-12 py-12 lg:grid-cols-[300px_1fr_200px] items-center">
-                                <div>
-                                    <p className="text-sm font-black uppercase tracking-[0.2em] text-white">{order.order_number}</p>
-                                    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-600">
-                                        {new Date(order.created_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}
-                                    </p>
+                            <div key={order.id} className="py-12 space-y-8 border-b border-white/5 last:border-0">
+                                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 items-center">
+                                    <div>
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{language === 'ar' ? 'رقم الطلب' : 'Order Number'}</h4>
+                                        <p className="text-sm font-black uppercase tracking-[0.2em] text-white">{order.order_number}</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{language === 'ar' ? 'التاريخ' : 'Date'}</h4>
+                                        <p className="text-xs font-black uppercase tracking-[0.1em] text-slate-300">
+                                            {new Date(order.created_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{language === 'ar' ? 'الحالة' : 'Status'}</h4>
+                                        <span className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-[#f6eace]">
+                                            {statusLabel(order.status, t)}
+                                        </span>
+                                    </div>
+                                    <div className="sm:text-right">
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">{language === 'ar' ? 'المجموع' : 'Total'}</h4>
+                                        <p className="text-xl font-black text-[#f6eace]">{formatJOD(order.total, language)}</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium text-slate-400">{order.city} - {order.address_line}</p>
-                                    <span className="inline-block text-[9px] font-black uppercase tracking-[0.3em] text-[#f6eace]/40">
-                                        {statusLabel(order.status, t)}
-                                    </span>
-                                </div>
-                                <div className="lg:text-right">
-                                    <p className="text-xl font-black text-[#f6eace]">{formatJOD(order.total, language)}</p>
+
+                                <div className="space-y-4 bg-white/[0.02] border border-white/5 p-6 sm:p-8 rounded-3xl">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4">{language === 'ar' ? 'المنتجات المطلوبة' : 'Ordered Items'}</h4>
+                                    <div className="divide-y divide-white/5">
+                                        {order.items?.map((item) => (
+                                            <div key={item.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 py-6 first:pt-0 last:pb-0">
+                                                <div className="flex items-center gap-4">
+                                                    <img src={item.image || '/images/product-placeholder.svg'} alt={item.product_name} className="h-16 w-16 object-cover rounded-2xl border border-white/10" />
+                                                    <div className="space-y-1">
+                                                        <h5 className="text-sm font-black text-white">{item.product_name}</h5>
+                                                        <p className="text-[10px] text-slate-500 font-medium">
+                                                            {item.size ? `${language === 'ar' ? 'المقاس' : 'Size'}: ${item.size} | ` : ''}{language === 'ar' ? 'الكمية' : 'Qty'}: {item.quantity}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <button
+                                                    onClick={() => handleOpenReviewModal(item.product_id, item.product_name)}
+                                                    className="sm:self-center bg-white/5 hover:bg-[#f6eace] hover:text-black border border-white/10 text-white transition-all text-[10px] font-black uppercase tracking-[0.2em] px-6 py-3 rounded-xl active:scale-95 text-center"
+                                                >
+                                                    {language === 'ar' ? 'تقييم المنتج' : 'Review Product'}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -194,6 +265,79 @@ export default function OrdersPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Review Modal */}
+            {reviewModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/85 backdrop-blur-md">
+                    <div className="relative w-full max-w-lg bg-[#0a1019]/95 border border-white/10 p-8 sm:p-12 rounded-3xl shadow-[0_20px_50px_rgba(246,234,206,0.05)] text-right animate-fade-in" style={{ direction: language === 'ar' ? 'rtl' : 'ltr' }}>
+                        <button 
+                            onClick={() => setReviewModalOpen(false)}
+                            className="absolute top-6 left-6 text-slate-400 hover:text-white transition-colors"
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div className="space-y-8">
+                            <div className="space-y-3">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-[#f6eace] block">
+                                    {language === 'ar' ? 'تقييم المنتج' : 'Product Review'}
+                                </span>
+                                <h3 className="text-xl font-black text-white uppercase tracking-tight">
+                                    {activeProductName}
+                                </h3>
+                            </div>
+
+                            <form onSubmit={handleSubmitReview} className="space-y-8">
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">
+                                        {language === 'ar' ? 'التقييم بالنجوم' : 'Star Rating'}
+                                    </label>
+                                    <div className={`flex gap-3 ${language === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setRating(star)}
+                                                className="text-2xl transition-transform active:scale-90"
+                                            >
+                                                <span className={star <= rating ? 'text-[#f6eace]' : 'text-white/10'}>
+                                                    ★
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">
+                                        {language === 'ar' ? 'رأيك بالمنتج' : 'Your Review'}
+                                    </label>
+                                    <textarea
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        rows={4}
+                                        className="w-full border-b border-white/10 bg-transparent py-4 text-sm outline-none transition-colors focus:border-[#f6eace] placeholder:text-slate-700 text-white"
+                                        placeholder={language === 'ar' ? 'شاركونا تفاصيل تجربتكم ورأيكم بالخامة والمقاس...' : 'Share your feedback about quality, fit...'}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={submittingReview}
+                                    className="w-full bg-[#f6eace] py-5 text-xs font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50 rounded-xl"
+                                >
+                                    {submittingReview 
+                                        ? (language === 'ar' ? 'جاري الإرسال...' : 'Submitting...') 
+                                        : (language === 'ar' ? 'إرسال التقييم' : 'Submit Review')}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -203,4 +347,3 @@ function statusLabel(status, t) {
     const translated = t(key);
     return translated === key ? status : translated;
 }
-

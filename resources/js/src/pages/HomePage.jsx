@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { getProducts, getCollections } from '../services/api';
+import { getProducts, getCollections, getFeaturedReviews } from '../services/api';
 import { formatJOD } from '../utils/currency';
 
 export default function HomePage() {
@@ -12,20 +12,21 @@ export default function HomePage() {
     const [featured, setFeatured] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const [collections, setCollections] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
         Promise.all([
             getProducts({ per_page: 20 }),
-            getCollections()
-        ]).then(([productsRes, collectionsRes]) => {
+            getCollections(),
+            getFeaturedReviews()
+        ]).then(([productsRes, collectionsRes, reviewsRes]) => {
             const items = productsRes.data || [];
             setAllProducts(items);
             setFeatured(items.filter(item => item.featured).slice(0, 8));
-            
-            // Only show active collections on the homepage
             setCollections((collectionsRes || []).filter(c => c.is_active));
+            setReviews(reviewsRes || []);
         }).finally(() => {
             setLoading(false);
         });
@@ -249,6 +250,80 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            {/* Customer Testimonials Section */}
+            {reviews.length > 0 && (
+                <section className="relative overflow-hidden py-40 border-b border-white/5">
+                    {/* Background Glow */}
+                    <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-[#f6eace]/5 blur-[150px] pointer-events-none -z-10" />
+                    
+                    <div className="absolute select-none pointer-events-none font-black text-white/[0.015] uppercase leading-none tracking-[0.1em] -z-10 text-[9vw] sm:text-[10vw] left-6 top-16 hidden md:block">
+                        REVIEWS
+                    </div>
+
+                    <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
+                        <div className="mb-24 flex gap-6 items-start">
+                            <div className="w-[3px] bg-gradient-to-b from-[#f6eace] via-[#f6eace]/50 to-transparent h-16 self-stretch rounded-full" />
+                            
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
+                                        {language === 'ar' ? 'آراء عملائنا' : 'TESTIMONIALS'}
+                                    </span>
+                                </div>
+                                <h2 className="text-3xl font-black uppercase tracking-tight text-[#f6eace] sm:text-5xl">
+                                    {language === 'ar' ? 'تقييمات متميزة من رياضيين حقيقيين' : 'TRUSTED BY ATHLETES'}
+                                </h2>
+                            </div>
+                        </div>
+
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                            {reviews.map((review) => (
+                                <div 
+                                    key={review.id} 
+                                    className="group relative rounded-3xl border border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent p-8 transition-all duration-500 hover:border-[#f6eace]/30 hover:shadow-[0_15px_30px_rgba(246,234,206,0.03)]"
+                                >
+                                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    
+                                    <div className="flex items-center justify-between gap-4 mb-6">
+                                        <div>
+                                            <p className="text-xs font-black uppercase tracking-widest text-white">{review.user?.name || (language === 'ar' ? 'عميل SIRIUS' : 'SIRIUS Athlete')}</p>
+                                            <div className="mt-1 flex text-[#f6eace] text-xs">
+                                                {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                                            </div>
+                                        </div>
+                                        <span className="text-3xl text-[#f6eace]/20 font-serif">“</span>
+                                    </div>
+
+                                    <p className="text-xs leading-relaxed text-slate-300 italic mb-8 min-h-[60px]">
+                                        "{review.comment}"
+                                    </p>
+
+                                    {review.product && (
+                                        <Link 
+                                            to={`/shop/${review.product.id}`}
+                                            className="flex items-center gap-3 border-t border-white/5 pt-4 group/prod"
+                                        >
+                                            <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/10 bg-black/40">
+                                                <img 
+                                                    src={review.product.image || '/images/product-placeholder.svg'} 
+                                                    alt={review.product.name} 
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover/prod:scale-110" 
+                                                />
+                                            </div>
+                                            <div className="text-left">
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">{language === 'ar' ? 'المنتج' : 'PRODUCT'}</span>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#f6eace] group-hover/prod:text-white transition-colors">{review.product.name}</p>
+                                            </div>
+                                        </Link>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {loading && (
                 <div className="fixed bottom-12 right-12 z-50">

@@ -199,6 +199,10 @@ export function toggleWishlist(productId) {
     });
 }
 
+export function getFeaturedReviews() {
+    return request('/api/reviews/featured', { headers: JSON_HEADERS });
+}
+
 export function getProductReviews(productId, params = {}) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -300,6 +304,43 @@ export function getAdminActivityLogs(params = {}) {
 
     const url = query.toString() ? `/api/admin/activity-logs?${query.toString()}` : '/api/admin/activity-logs';
     return request(url, { headers: withAuthHeaders(JSON_HEADERS) });
+}
+
+export function getAdminReviews(params = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            query.set(key, String(value));
+        }
+    });
+
+    const url = query.toString() ? `/api/admin/reviews?${query.toString()}` : '/api/admin/reviews';
+    return request(url, { headers: withAuthHeaders(JSON_HEADERS) });
+}
+
+export function updateAdminReviewStatus(reviewId, status) {
+    return request(`/api/admin/reviews/${reviewId}/status`, {
+        method: 'PUT',
+        headers: withAuthHeaders({
+            ...JSON_HEADERS,
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({ status }),
+    });
+}
+
+export function toggleAdminReviewHomepage(reviewId) {
+    return request(`/api/admin/reviews/${reviewId}/homepage`, {
+        method: 'PUT',
+        headers: withAuthHeaders(JSON_HEADERS),
+    });
+}
+
+export function deleteAdminReview(reviewId) {
+    return request(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: withAuthHeaders(JSON_HEADERS),
+    });
 }
 
 export function registerAuth(data) {

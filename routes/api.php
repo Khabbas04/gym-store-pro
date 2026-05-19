@@ -12,6 +12,7 @@ Route::get('/products', [ProductApiController::class, 'index']);
 Route::get('/products/{product}', [ProductApiController::class, 'show']);
 Route::get('/products/{product}/reviews', [EngagementApiController::class, 'reviews']);
 Route::get('/homepage/sections', [ProductApiController::class, 'homepage']);
+Route::get('/reviews/featured', [EngagementApiController::class, 'homepageReviews']);
 
 Route::get('/categories', [ProductApiController::class, 'categories']);
 Route::get('/collections', [CollectionApiController::class, 'index']);
@@ -48,5 +49,9 @@ Route::middleware(['throttle:120,1', 'auth.token', 'admin'])->group(function () 
 	Route::delete('/admin/orders/{order}', [OrderApiController::class, 'adminDeleteOrder']);
 	Route::get('/admin/users', [OrderApiController::class, 'adminUsers']);
 	Route::get('/admin/activity-logs', [OrderApiController::class, 'adminActivityLogs']);
+	Route::get('/admin/reviews', [EngagementApiController::class, 'adminReviews']);
+	Route::put('/admin/reviews/{review}/status', [EngagementApiController::class, 'adminUpdateReviewStatus']);
+	Route::put('/admin/reviews/{review}/homepage', [EngagementApiController::class, 'adminToggleReviewHomepage']);
+	Route::delete('/admin/reviews/{review}', [EngagementApiController::class, 'adminDeleteReview']);
 });
 });
