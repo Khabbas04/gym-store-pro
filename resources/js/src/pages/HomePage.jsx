@@ -53,8 +53,10 @@ export default function HomePage() {
     return (
         <div className="bg-[#02040a] text-white overflow-x-hidden">
             {/* Hero Section - Split Horizon */}
-            <section className="relative h-screen w-full">
-                <div className="mx-auto flex h-full max-w-[1700px] flex-col items-stretch gap-12 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
+            <section className="relative h-screen w-full overflow-hidden">
+                <div className="absolute inset-y-0 right-0 w-full lg:w-[46%] bg-gradient-to-br from-white/70 via-white/60 to-white/40 opacity-80" />
+                <div className="absolute inset-y-0 right-0 w-full lg:w-[46%] bg-[radial-gradient(600px_500px_at_60%_10%,rgba(255,255,255,0.6),transparent_70%)]" />
+                <div className="mx-auto relative flex h-full max-w-[1700px] flex-col items-stretch gap-12 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
                     {/* Left: Statement */}
                     <div className="flex-1 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
                         <span className="mb-6 inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
@@ -81,16 +83,16 @@ export default function HomePage() {
 
                     {/* Right: Vertical product runway */}
                     <div className="relative flex-1 max-w-xl mx-auto lg:mx-0 animate-in fade-in slide-in-from-right-8 duration-1000">
-                        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                        <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-black/20 to-transparent" />
                         <div className="relative grid gap-6">
                             {(featured.length ? featured : allProducts).slice(0, 4).map((product, index) => (
                                 <Link
                                     key={product.id}
                                     to={`/shop/${product.id}`}
                                     state={{ product }}
-                                    className={`group relative flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-all duration-500 hover:border-[#f6eace]/40 hover:bg-white/[0.04] ${index % 2 === 0 ? 'lg:translate-x-10' : 'lg:-translate-x-10'}`}
+                                    className={`group relative flex items-center gap-4 rounded-2xl border border-black/10 bg-white/80 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.18)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.25)] ${index % 2 === 0 ? 'lg:translate-x-8' : 'lg:-translate-x-8'}`}
                                 >
-                                    <div className="h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                                    <div className="h-16 w-16 overflow-hidden rounded-xl border border-black/10 bg-white">
                                         <img
                                             src={product.image || '/images/product-placeholder.svg'}
                                             alt={product.name}
@@ -99,13 +101,16 @@ export default function HomePage() {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('featured')}</p>
-                                        <h3 className="text-xs font-black uppercase tracking-widest text-white truncate group-hover:text-[#f6eace] transition-colors">
+                                        <h3 className="text-xs font-black uppercase tracking-widest text-[#0b0f16] truncate group-hover:text-black transition-colors">
                                             {product.name}
                                         </h3>
-                                        <p className="mt-1 text-[10px] font-black text-[#f6eace]">{formatJOD(product.price, language)}</p>
+                                        <p className="mt-1 text-[10px] font-black text-[#0b0f16]/70">{formatJOD(product.price, language)}</p>
                                     </div>
                                 </Link>
                             ))}
+                        </div>
+                        <div className="absolute -right-6 top-1/2 hidden h-16 w-16 -translate-y-1/2 rounded-2xl border border-black/10 bg-white/80 text-[10px] font-black uppercase tracking-[0.2em] text-[#0b0f16] shadow-[0_10px_25px_rgba(0,0,0,0.18)] lg:flex items-center justify-center">
+                            {t('explore_shop')}
                         </div>
                     </div>
                 </div>
