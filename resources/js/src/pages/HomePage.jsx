@@ -54,20 +54,6 @@ export default function HomePage() {
         <div className="bg-[#02040a] text-white overflow-x-hidden">
             {/* Hero Section - Full Immersive */}
             <section className="relative h-screen w-full">
-                <div className="absolute inset-0">
-                    {/* Galaxy-inspired background */}
-                    <div className="absolute inset-0 bg-[radial-gradient(1200px_700px_at_15%_5%,rgba(246,234,206,0.08),transparent_60%),radial-gradient(1000px_600px_at_85%_15%,rgba(120,160,255,0.08),transparent_65%),radial-gradient(900px_500px_at_70%_80%,rgba(120,255,210,0.06),transparent_70%),radial-gradient(1200px_900px_at_50%_50%,rgba(3,6,12,0.98),rgba(2,4,10,1))]" />
-                    <div className="absolute inset-0 opacity-90" style={{
-                        backgroundImage: 'radial-gradient(1px 1px at 8% 18%, rgba(255,255,255,0.65) 40%, transparent 41%), radial-gradient(1px 1px at 18% 65%, rgba(255,255,255,0.55) 40%, transparent 41%), radial-gradient(1px 1px at 28% 32%, rgba(255,255,255,0.5) 40%, transparent 41%), radial-gradient(1px 1px at 42% 78%, rgba(255,255,255,0.5) 40%, transparent 41%), radial-gradient(1px 1px at 55% 55%, rgba(255,255,255,0.55) 40%, transparent 41%), radial-gradient(1px 1px at 62% 22%, rgba(255,255,255,0.6) 40%, transparent 41%), radial-gradient(1px 1px at 74% 68%, rgba(255,255,255,0.55) 40%, transparent 41%), radial-gradient(1px 1px at 86% 36%, rgba(255,255,255,0.6) 40%, transparent 41%), radial-gradient(1px 1px at 92% 82%, rgba(255,255,255,0.5) 40%, transparent 41%), radial-gradient(1px 1px at 12% 88%, rgba(255,255,255,0.5) 40%, transparent 41%)',
-                        backgroundSize: '100% 100%'
-                    }} />
-                    <div className="absolute inset-0 opacity-70" style={{
-                        backgroundImage: 'radial-gradient(1px 1px at 6% 42%, rgba(255,255,255,0.45) 40%, transparent 41%), radial-gradient(1px 1px at 14% 12%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 22% 85%, rgba(255,255,255,0.45) 40%, transparent 41%), radial-gradient(1px 1px at 33% 54%, rgba(255,255,255,0.35) 40%, transparent 41%), radial-gradient(1px 1px at 41% 26%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 48% 90%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 58% 40%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 66% 10%, rgba(255,255,255,0.45) 40%, transparent 41%), radial-gradient(1px 1px at 72% 78%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 81% 50%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 88% 20%, rgba(255,255,255,0.35) 40%, transparent 41%), radial-gradient(1px 1px at 95% 70%, rgba(255,255,255,0.4) 40%, transparent 41%)',
-                        backgroundSize: '100% 100%'
-                    }} />
-                    {/* Multi-layered overlay for depth */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#02040a]" />
-                </div>
                 
                 <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
