@@ -679,33 +679,100 @@ export default function AdminPage({ section = 'overview' }) {
                     </div>
 
                     {editingOrderId && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-6 backdrop-blur-md animate-in fade-in duration-300">
-                            <form onSubmit={onSaveOrderEdits} className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#0d131f] p-8 shadow-2xl">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6 backdrop-blur-md animate-in fade-in duration-300">
+                            <form onSubmit={onSaveOrderEdits} className="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#070b13] p-8 shadow-2xl flex flex-col max-h-[90vh]">
                                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/30 to-transparent" />
-                                <h3 className="mb-6 text-lg font-black uppercase tracking-[0.15em] text-[#f6eace]">{t('admin_edit_order_title')}</h3>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <input name="customer_name" value={orderForm.customer_name} onChange={onOrderFormChange} placeholder={t('full_name')} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
-                                    <input name="customer_email" value={orderForm.customer_email} onChange={onOrderFormChange} placeholder={t('email')} type="email" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
-                                    <input name="phone" value={orderForm.phone} onChange={onOrderFormChange} placeholder={t('phone')} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
-                                    <input name="city" value={orderForm.city} onChange={onOrderFormChange} placeholder={t('governorate')} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
-                                    <input name="address_line" value={orderForm.address_line} onChange={onOrderFormChange} placeholder={t('address_line')} className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
-                                    <select name="payment_method" value={orderForm.payment_method} onChange={onOrderFormChange} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer focus:border-[#f6eace]/40 transition-all">
-                                        <option value="cod">{t('cash_on_delivery')}</option>
-                                        <option value="card">{t('credit_card')}</option>
-                                        <option value="bank">{t('bank_transfer')}</option>
-                                    </select>
-                                    <select name="status" value={orderForm.status} onChange={onOrderFormChange} className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer focus:border-[#f6eace]/40 transition-all">
-                                        <option value="pending">{t('status_pending')}</option>
-                                        <option value="confirmed">{t('status_confirmed')}</option>
-                                        <option value="shipped">{t('status_shipped')}</option>
-                                        <option value="delivered">{t('status_delivered')}</option>
-                                        <option value="cancelled">{t('status_cancelled')}</option>
-                                    </select>
-                                    <textarea name="notes" value={orderForm.notes} onChange={onOrderFormChange} placeholder={t('notes_optional')} rows={3} className="sm:col-span-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
+                                
+                                {/* Header */}
+                                <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                                    <div>
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#f6eace]">Order Management</span>
+                                        <h3 className="text-xl font-black uppercase tracking-widest text-white mt-1">{t('admin_edit_order_title')}</h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={closeOrderEditor}
+                                        className="text-slate-400 hover:text-white text-lg transition-colors"
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
-                                <div className="mt-8 flex flex-wrap justify-end gap-3">
-                                    <button type="button" onClick={closeOrderEditor} className="rounded-xl border border-white/10 hover:bg-white/5 px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition-all">{t('back')}</button>
-                                    <button type="submit" className="rounded-xl bg-[#f6eace] hover:bg-white px-8 py-3 text-xs font-black uppercase tracking-[0.2em] text-black transition-all">{t('admin_save')}</button>
+
+                                {/* Content Grid */}
+                                <div className="flex-1 overflow-y-auto space-y-6 pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                                    <div className="grid gap-6 md:grid-cols-2">
+                                        {/* Left Side: Client Information */}
+                                        <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-6 space-y-4">
+                                            <h4 className="text-xs font-black uppercase tracking-widest text-[#f6eace] border-b border-white/5 pb-2">📋 Customer Details</h4>
+                                            
+                                            <div className="space-y-4">
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('full_name')}</span>
+                                                    <input name="customer_name" value={orderForm.customer_name} onChange={onOrderFormChange} placeholder={t('full_name')} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all font-bold" required />
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('phone')}</span>
+                                                    <input name="phone" value={orderForm.phone} onChange={onOrderFormChange} placeholder={t('phone')} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all font-bold text-[#f6eace] tracking-wider" required />
+                                                </div>
+
+                                                <div className="grid gap-4 sm:grid-cols-2">
+                                                    <div className="space-y-1">
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('governorate')}</span>
+                                                        <input name="city" value={orderForm.city} onChange={onOrderFormChange} placeholder={t('governorate')} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                                                    </div>
+
+                                                    <div className="space-y-1">
+                                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('email')}</span>
+                                                        <input name="customer_email" value={orderForm.customer_email} onChange={onOrderFormChange} placeholder={t('email')} type="email" className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('address_line')}</span>
+                                                    <input name="address_line" value={orderForm.address_line} onChange={onOrderFormChange} placeholder={t('address_line')} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" required />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right Side: Order Configuration & Notes */}
+                                        <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-6 space-y-4">
+                                            <h4 className="text-xs font-black uppercase tracking-widest text-[#f6eace] border-b border-white/5 pb-2">⚙️ Order settings</h4>
+                                            
+                                            <div className="space-y-4">
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Order Status</span>
+                                                    <select name="status" value={orderForm.status} onChange={onOrderFormChange} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer focus:border-[#f6eace]/40 transition-all">
+                                                        <option value="pending">{t('status_pending')}</option>
+                                                        <option value="confirmed">{t('status_confirmed')}</option>
+                                                        <option value="shipped">{t('status_shipped')}</option>
+                                                        <option value="delivered">{t('status_delivered')}</option>
+                                                        <option value="cancelled">{t('status_cancelled')}</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Payment Method</span>
+                                                    <select name="payment_method" value={orderForm.payment_method} onChange={onOrderFormChange} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer focus:border-[#f6eace]/40 transition-all">
+                                                        <option value="cod">{t('cash_on_delivery')}</option>
+                                                        <option value="card">{t('credit_card')}</option>
+                                                        <option value="bank">{t('bank_transfer')}</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('notes_optional')}</span>
+                                                    <textarea name="notes" value={orderForm.notes} onChange={onOrderFormChange} placeholder="Write special client instructions..." rows={4} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all font-medium" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer Actions */}
+                                <div className="mt-8 border-t border-white/10 pt-6 flex flex-wrap justify-end gap-3">
+                                    <button type="button" onClick={closeOrderEditor} className="rounded-xl border border-white/10 hover:bg-white/5 px-6 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-white transition-all">{t('back')}</button>
+                                    <button type="submit" className="rounded-xl bg-[#f6eace] hover:bg-white px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-black transition-all shadow-lg hover:shadow-[0_0_20px_rgba(246,234,206,0.3)]">{t('admin_save')}</button>
                                 </div>
                             </form>
                         </div>
@@ -1002,7 +1069,7 @@ export default function AdminPage({ section = 'overview' }) {
             {/* Detailed Order Modal */}
             {selectedOrder && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#070b13] p-8 shadow-2xl flex flex-col max-h-[90vh]">
+                    <div className="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-[#070b13] p-8 shadow-2xl flex flex-col max-h-[90vh]">
                         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/30 to-transparent" />
                         
                         {/* Header */}
