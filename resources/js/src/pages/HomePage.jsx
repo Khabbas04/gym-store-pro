@@ -91,10 +91,28 @@ export default function HomePage() {
             </section>
 
             {/* Collections / Categories Grid */}
-            <section className="mx-auto max-w-[1600px] px-6 py-40 sm:px-12">
-                <div className="mb-24 flex flex-col items-start gap-4">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('categories')}</span>
-                    <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl py-2">{t('shop_by_collection')}</h2>
+            <section className="relative overflow-hidden mx-auto max-w-[1600px] px-6 py-40 sm:px-12 border-b border-white/5">
+                {/* Background Watermark and Glow */}
+                <div className="absolute top-1/4 left-1/10 w-[300px] h-[300px] rounded-full bg-[#f6eace]/5 blur-[120px] pointer-events-none -z-10" />
+                <div className="absolute select-none pointer-events-none font-black text-white/[0.015] uppercase leading-none tracking-[0.1em] -z-10 text-[9vw] sm:text-[10vw] right-6 top-16 hidden md:block">
+                    COLLECTIONS
+                </div>
+
+                <div className="mb-24 flex gap-6 items-start">
+                    {/* Vertical Glowing Accent Bar */}
+                    <div className="w-[3px] bg-gradient-to-b from-[#f6eace] via-[#f6eace]/50 to-transparent h-16 self-stretch rounded-full" />
+                    
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
+                                {t('categories')}
+                            </span>
+                        </div>
+                        <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl py-2">
+                            {t('shop_by_collection')}
+                        </h2>
+                    </div>
                 </div>
                 
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -145,11 +163,29 @@ export default function HomePage() {
             </section>
 
             {/* Featured Selection - High Contrast Gallery */}
-            <section className="bg-white/5 py-40">
+            <section className="relative overflow-hidden py-40 border-b border-white/5">
+                {/* Background Watermark and Glow */}
+                <div className="absolute top-1/4 right-1/10 w-[300px] h-[300px] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none -z-10" />
+                <div className="absolute select-none pointer-events-none font-black text-white/[0.015] uppercase leading-none tracking-[0.1em] -z-10 text-[9vw] sm:text-[10vw] left-6 top-16 hidden md:block">
+                    FEATURED
+                </div>
+
                 <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                    <div className="mb-24 flex flex-col items-center text-center">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace] mb-4">{t('featured')}</span>
-                        <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl">{t('featured_picks')}</h2>
+                    <div className="mb-24 flex gap-6 items-start">
+                        {/* Vertical Glowing Accent Bar */}
+                        <div className="w-[3px] bg-gradient-to-b from-[#f6eace] via-[#f6eace]/50 to-transparent h-16 self-stretch rounded-full" />
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
+                                    {t('featured')}
+                                </span>
+                            </div>
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl">
+                                {t('featured_picks')}
+                            </h2>
+                        </div>
                     </div>
 
                     <div className="grid gap-x-8 gap-y-20 sm:grid-cols-2 lg:grid-cols-4">
@@ -191,7 +227,11 @@ export default function HomePage() {
             </section>
 
             {/* Stats - Minimalist Row */}
-            <section className="border-t border-white/5 py-32">
+            <section className="relative overflow-hidden py-32 border-b border-white/5">
+                {/* Background Watermark */}
+                <div className="absolute select-none pointer-events-none font-black text-white/[0.012] uppercase leading-none tracking-[0.1em] -z-10 text-[9vw] sm:text-[10vw] right-6 top-1/2 -translate-y-1/2 hidden md:block">
+                    STATS
+                </div>
                 <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
                     <div className="grid grid-cols-2 gap-16 lg:grid-cols-4">
                         <div className="text-center">
