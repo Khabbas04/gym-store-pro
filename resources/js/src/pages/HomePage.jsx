@@ -60,7 +60,7 @@ export default function HomePage() {
                         <span className="mb-6 block text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
                             {t('home_hero_caption')}
                         </span>
-                        <h1 className="max-w-6xl text-6xl font-black uppercase tracking-tight text-white sm:text-8xl lg:text-[9rem] leading-none">
+                        <h1 className="max-w-6xl text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f6eace] to-white sm:text-7xl lg:text-[9rem] leading-none animate-in zoom-in-95 duration-1000">
                             {t('home_title')}
                         </h1>
                         <p className="mx-auto mt-12 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed">
@@ -85,7 +85,7 @@ export default function HomePage() {
             <section className="mx-auto max-w-[1600px] px-6 py-40 sm:px-12">
                 <div className="mb-24 flex flex-col items-start gap-4">
                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('categories')}</span>
-                    <h2 className="text-4xl font-black uppercase tracking-tight sm:text-6xl">{t('shop_by_collection')}</h2>
+                    <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl">{t('shop_by_collection')}</h2>
                 </div>
                 
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -123,7 +123,7 @@ export default function HomePage() {
                 <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
                     <div className="mb-24 flex flex-col items-center text-center">
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace] mb-4">{t('featured')}</span>
-                        <h2 className="text-4xl font-black uppercase tracking-tight sm:text-6xl">{t('featured_picks')}</h2>
+                        <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl">{t('featured_picks')}</h2>
                     </div>
 
                     <div className="grid gap-x-8 gap-y-20 sm:grid-cols-2 lg:grid-cols-4">

@@ -51,7 +51,7 @@ export default function Header({ user, onLogout }) {
                         <img
                             src="/images/icon.png?v=1"
                             alt="Logo"
-                            className="h-12 w-12 sm:h-16 sm:w-16 object-contain brightness-125 transition-transform duration-500 group-hover:scale-110"
+                            className="h-10 w-10 sm:h-16 sm:w-16 object-contain brightness-125 transition-transform duration-500 group-hover:scale-110"
                         />
                         <span className="text-xl sm:text-2xl font-black uppercase tracking-[0.25em] text-white transition-colors duration-300 group-hover:text-[#f6eace]">SIRIUS</span>
                     </Link>
