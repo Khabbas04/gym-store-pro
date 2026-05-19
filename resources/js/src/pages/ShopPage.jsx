@@ -19,6 +19,7 @@ export default function ShopPage() {
     const [loading, setLoading] = useState(true);
 
     const query = searchParams.get('q') || '';
+    const [localQuery, setLocalQuery] = useState(query);
     const category = searchParams.get('category') || '';
     const sort = searchParams.get('sort') || 'latest';
     const featured = searchParams.get('featured') || '';
@@ -46,6 +47,24 @@ export default function ShopPage() {
     useEffect(() => {
         getCategories().then(setCategories).catch(() => {});
     }, []);
+
+    // Sync input field value when query param changes externally
+    useEffect(() => {
+        setLocalQuery(query);
+    }, [query]);
+
+    // Debounce the search input updates to query parameters
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localQuery !== query) {
+                patchParams({ q: localQuery });
+            }
+        }, 400);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [localQuery, query]);
 
     useEffect(() => {
         setLoading(true);
@@ -105,8 +124,8 @@ export default function ShopPage() {
                         <div className="flex-1 relative">
                             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
                             <input
-                                value={query}
-                                onChange={(e) => patchParams({ q: e.target.value })}
+                                value={localQuery}
+                                onChange={(e) => setLocalQuery(e.target.value)}
                                 placeholder={t('shop_search')}
                                 className="w-full rounded-2xl border border-white/10 bg-black/40 pl-12 pr-5 py-4 text-sm font-bold placeholder-slate-500 outline-none transition-all focus:border-[#f6eace]/40 focus:ring-1 focus:ring-[#f6eace]/40"
                             />
