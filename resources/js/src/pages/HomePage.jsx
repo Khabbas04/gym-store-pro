@@ -233,9 +233,9 @@ export default function HomePage() {
                     STATS
                 </div>
                 <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                    <div className="grid grid-cols-2 gap-16 lg:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-16 sm:grid-cols-3">
                         <div className="text-center">
-                            <p className="text-4xl font-black text-white">50k+</p>
+                            <p className="text-4xl font-black text-white">50+</p>
                             <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('happy_customers')}</p>
                         </div>
                         <div className="text-center">
@@ -245,10 +245,6 @@ export default function HomePage() {
                         <div className="text-center">
                             <p className="text-4xl font-black text-white">24h</p>
                             <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('fast_delivery')}</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-4xl font-black text-white">2y</p>
-                            <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('warranty_service')}</p>
                         </div>
                     </div>
                 </div>
