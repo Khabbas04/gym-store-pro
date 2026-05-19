@@ -52,65 +52,71 @@ export default function HomePage() {
 
     return (
         <div className="bg-[#02040a] text-white overflow-x-hidden">
-            {/* Hero Section - Split Horizon */}
+            {/* Hero Section - Editorial Monument */}
             <section className="relative h-screen w-full overflow-hidden">
-                <div className="absolute inset-y-0 right-0 w-full lg:w-[46%] bg-gradient-to-br from-white/70 via-white/60 to-white/40 opacity-80" />
-                <div className="absolute inset-y-0 right-0 w-full lg:w-[46%] bg-[radial-gradient(600px_500px_at_60%_10%,rgba(255,255,255,0.6),transparent_70%)]" />
-                <div className="mx-auto relative flex h-full max-w-[1700px] flex-col items-stretch gap-12 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
-                    {/* Left: Statement */}
+                <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_12%_10%,rgba(246,234,206,0.12),transparent_60%),radial-gradient(800px_500px_at_80%_15%,rgba(90,110,160,0.18),transparent_70%),linear-gradient(135deg,rgba(2,4,10,1),rgba(6,10,18,1))]" />
+                <div className="absolute inset-0 opacity-35 bg-[repeating-linear-gradient(120deg,rgba(255,255,255,0.06)_0,rgba(255,255,255,0.06)_2px,transparent_2px,transparent_140px)]" />
+
+                <div className="relative mx-auto flex h-full max-w-[1700px] flex-col items-stretch gap-14 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
+                    {/* Left: Monument text */}
                     <div className="flex-1 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
-                        <span className="mb-6 inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
-                            <span className="h-[1px] w-10 bg-[#f6eace]/60" />
+                        <div className="mx-auto lg:mx-0 inline-flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
                             {t('home_hero_caption')}
-                        </span>
-                        <h1 className="text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f6eace] to-white sm:text-7xl lg:text-[8.5rem] leading-[1.05]">
-                            {t('home_title')}
+                        </div>
+                        <h1 className="mt-10 text-5xl font-black uppercase tracking-tight text-white sm:text-7xl lg:text-[8.5rem] leading-[1.02]">
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace]">SIRIUS</span>
+                            <span className="block">{t('home_title')}</span>
                         </h1>
                         <p className="mt-10 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed mx-auto lg:mx-0">
                             {t('home_brand_subtitle')}
                         </p>
-                        <div className="mt-14 flex flex-wrap justify-center lg:justify-start gap-6">
-                            <Link to="/shop" className="group relative overflow-hidden bg-[#f6eace] px-12 py-5 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
+                        <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-5">
+                            <Link to="/shop" className="group relative overflow-hidden rounded-full bg-[#f6eace] px-12 py-4 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
                                 <span className="relative z-10">{t('explore_shop')}</span>
                                 <div className="absolute inset-0 -translate-x-full bg-white transition-transform duration-500 group-hover:translate-x-0" />
                             </Link>
-                            <div className="hidden sm:flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
-                                <span className="h-[1px] w-12 bg-white/20" />
+                            <Link to="/shop?featured=1" className="rounded-full border border-white/15 bg-white/5 px-10 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 transition-colors hover:text-white hover:border-white/30">
                                 {t('featured')}
-                            </div>
+                            </Link>
                         </div>
                     </div>
 
-                    {/* Right: Vertical product runway */}
+                    {/* Right: Feature showcase */}
                     <div className="relative flex-1 max-w-xl mx-auto lg:mx-0 animate-in fade-in slide-in-from-right-8 duration-1000">
-                        <div className="absolute inset-y-8 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-black/20 to-transparent" />
-                        <div className="relative grid gap-6">
-                            {(featured.length ? featured : allProducts).slice(0, 4).map((product, index) => (
-                                <Link
-                                    key={product.id}
-                                    to={`/shop/${product.id}`}
-                                    state={{ product }}
-                                    className={`group relative flex items-center gap-4 rounded-2xl border border-black/10 bg-white/80 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.18)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(0,0,0,0.25)] ${index % 2 === 0 ? 'lg:translate-x-8' : 'lg:-translate-x-8'}`}
-                                >
-                                    <div className="h-16 w-16 overflow-hidden rounded-xl border border-black/10 bg-white">
-                                        <img
-                                            src={product.image || '/images/product-placeholder.svg'}
-                                            alt={product.name}
-                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('featured')}</p>
-                                        <h3 className="text-xs font-black uppercase tracking-widest text-[#0b0f16] truncate group-hover:text-black transition-colors">
-                                            {product.name}
-                                        </h3>
-                                        <p className="mt-1 text-[10px] font-black text-[#0b0f16]/70">{formatJOD(product.price, language)}</p>
-                                    </div>
-                                </Link>
-                            ))}
+                        <div className="relative rounded-[32px] border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.02] p-6 backdrop-blur-2xl">
+                            <div className="absolute -top-6 right-6 rounded-full border border-white/10 bg-black/50 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.3em] text-white/70">
+                                {t('featured')}
+                            </div>
+                            <div className="aspect-[4/5] overflow-hidden rounded-3xl border border-white/10 bg-black/30">
+                                <img
+                                    src={heroProduct?.image || '/images/product-placeholder.svg'}
+                                    alt={heroProduct?.name || 'Product'}
+                                    className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
+                                />
+                            </div>
+                            <div className="mt-6 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{heroProduct?.category || t('featured')}</p>
+                                    <h3 className="mt-2 text-sm font-black uppercase tracking-widest text-white">
+                                        {heroProduct?.name || t('home_title')}
+                                    </h3>
+                                </div>
+                                <p className="text-sm font-black text-[#f6eace]">
+                                    {heroProduct ? formatJOD(heroProduct.price, language) : ''}
+                                </p>
+                            </div>
                         </div>
-                        <div className="absolute -right-6 top-1/2 hidden h-16 w-16 -translate-y-1/2 rounded-2xl border border-black/10 bg-white/80 text-[10px] font-black uppercase tracking-[0.2em] text-[#0b0f16] shadow-[0_10px_25px_rgba(0,0,0,0.18)] lg:flex items-center justify-center">
-                            {t('explore_shop')}
+
+                        <div className="mt-6 grid grid-cols-2 gap-4">
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('happy_customers')}</p>
+                                <p className="mt-2 text-2xl font-black text-white">50+</p>
+                            </div>
+                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('premium_quality')}</p>
+                                <p className="mt-2 text-2xl font-black text-white">100%</p>
+                            </div>
                         </div>
                     </div>
                 </div>
