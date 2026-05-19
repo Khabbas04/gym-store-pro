@@ -42,7 +42,8 @@ export default function Header({ user, onLogout }) {
     const displayUser = user?.name || user?.email || 'User';
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#04080f]/80 backdrop-blur-xl shadow-lg">
+        <>
+            <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#04080f]/80 backdrop-blur-xl shadow-lg">
             <div className="mx-auto flex max-w-[1600px] items-center justify-between px-4 py-3 sm:px-8">
                 
                 {/* 1. Brand (Left) */}
@@ -155,8 +156,9 @@ export default function Header({ user, onLogout }) {
                     </button>
                 </div>
             </div>
+        </header>
 
-            {/* Mobile Sidebar Menu Drawer */}
+        {/* Mobile Sidebar Menu Drawer */}
             <div className={`fixed inset-0 z-[100] lg:hidden transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
                 {/* Backdrop */}
                 <div onClick={() => setMobileMenuOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -229,7 +231,7 @@ export default function Header({ user, onLogout }) {
                     </div>
                 </div>
             </div>
-        </header>
+        </>
     );
 }
 
