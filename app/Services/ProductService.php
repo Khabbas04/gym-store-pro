@@ -17,43 +17,52 @@ class ProductService
 
     public function getPaginatedProducts(Request $request): LengthAwarePaginator
     {
+        $page = (int) $request->integer('page', 1);
         $perPage = (int) $request->integer('per_page', 12);
         $perPage = $perPage > 0 ? min($perPage, 50) : 12;
-
-        $query = Product::query()
-            ->when($request->filled('q'), function (Builder $builder) use ($request) {
-                $term = trim((string) $request->string('q'));
-
-                $builder->where(function (Builder $inner) use ($term) {
-                    $inner
-                        ->where('name', 'like', "%{$term}%")
-                        ->orWhere('description', 'like', "%{$term}%")
-                        ->orWhere('category', 'like', "%{$term}%");
-                });
-            })
-            ->when($request->filled('category'), function (Builder $builder) use ($request) {
-                $builder->where('category', (string) $request->string('category'));
-            })
-            ->when($request->boolean('featured'), function (Builder $builder) {
-                $builder->where('featured', true);
-            });
-
-        if ($this->supportsReviews()) {
-            $query->withAvg('reviews', 'rating')->withCount('reviews');
-        }
-
+        $q = trim((string) $request->string('q', ''));
+        $category = (string) $request->string('category', '');
+        $featured = $request->boolean('featured') ? '1' : '0';
         $sort = (string) $request->string('sort', 'latest');
-        if ($sort === 'price_asc') {
-            $query->orderBy('price');
-        } elseif ($sort === 'price_desc') {
-            $query->orderByDesc('price');
-        } elseif ($sort === 'popular' && $this->supportsStockColumns()) {
-            $query->orderByDesc('is_popular')->orderByDesc('reviews_avg_rating');
-        } else {
-            $query->latest();
-        }
 
-        return $query->paginate($perPage);
+        $cacheKey = "products:list:page_{$page}:limit_{$perPage}:q_" . md5($q) . ":cat_" . md5($category) . ":f_{$featured}:s_{$sort}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($request, $perPage) {
+            $query = Product::query()
+                ->when($request->filled('q'), function (Builder $builder) use ($request) {
+                    $term = trim((string) $request->string('q'));
+
+                    $builder->where(function (Builder $inner) use ($term) {
+                        $inner
+                            ->where('name', 'like', "%{$term}%")
+                            ->orWhere('description', 'like', "%{$term}%")
+                            ->orWhere('category', 'like', "%{$term}%");
+                    });
+                })
+                ->when($request->filled('category'), function (Builder $builder) use ($request) {
+                    $builder->where('category', (string) $request->string('category'));
+                })
+                ->when($request->boolean('featured'), function (Builder $builder) {
+                    $builder->where('featured', true);
+                });
+
+            if ($this->supportsReviews()) {
+                $query->withAvg('reviews', 'rating')->withCount('reviews');
+            }
+
+            $sort = (string) $request->string('sort', 'latest');
+            if ($sort === 'price_asc') {
+                $query->orderBy('price');
+            } elseif ($sort === 'price_desc') {
+                $query->orderByDesc('price');
+            } elseif ($sort === 'popular' && $this->supportsStockColumns()) {
+                $query->orderByDesc('is_popular')->orderByDesc('reviews_avg_rating');
+            } else {
+                $query->latest();
+            }
+
+            return $query->paginate($perPage);
+        });
     }
 
     public function create(array $payload): Product
@@ -123,8 +132,7 @@ class ProductService
 
     public function clearCaches(): void
     {
-        Cache::forget('catalog:categories');
-        Cache::forget('catalog:homepage');
+        Cache::flush();
     }
 
     private function normalizePayload(array $payload, ?Product $product = null): array

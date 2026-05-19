@@ -56,11 +56,7 @@ export default function CheckoutPage() {
 
             const order = await checkoutOrder(payload);
             
-            // Redirect to Instagram page in a new tab
-            const instagramUrl = 'https://www.instagram.com/sirius.jo_/';
-            
             clearCart();
-            window.open(instagramUrl, '_blank');
             navigate('/orders', { state: { orderNumber: order.order_number, isNewOrder: true, orderDetails: order } });
         } catch (e) {
             setError(e.message || t('error_checkout_failed'));

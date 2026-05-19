@@ -88,13 +88,13 @@ export default function OrdersPage() {
                                     </h3>
                                     <p className="text-sm text-slate-300 leading-relaxed">
                                         {language === 'ar'
-                                            ? `رقم طلبك هو: ${location.state.orderNumber}. لقد فتحنا صفحة الإنستغرام الخاصة بنا sirius.jo_ في تبويب جديد لتأكيد طلبك.`
-                                            : `Your order number is: ${location.state.orderNumber}. We have opened our Instagram page sirius.jo_ in a new tab to confirm your order.`}
+                                            ? `رقم طلبك هو: ${location.state.orderNumber}. لتأكيد طلبك وتجهيزه سريعاً للشحن، يرجى نسخ تفاصيل الطلب بالأسفل ومشاركتها معنا عبر رسائل حساب إنستغرام الخاص بنا.`
+                                            : `Your order number is: ${location.state.orderNumber}. To confirm your order and secure fast shipping, please copy the order details below and share them with us via Direct Message (DM) on our Instagram.`}
                                     </p>
                                     <p className="text-sm text-slate-400 font-medium leading-relaxed">
                                         {language === 'ar'
-                                            ? 'الرجاء نسخ تفاصيل الطلب أدناه وإرسالها لنا في رسالة خاصة (DM) على إنستغرام لتأكيد طلبك وتوصيله فوراً!'
-                                            : 'Please copy the order details below and send them to us in a direct message (DM) on Instagram to confirm your order for fast delivery!'}
+                                            ? 'اضغط على زر النسخ بالأسفل لنسخ رقم وتفاصيل الطلب، ثم انقر على "افتح إنستغرام" لتأكيده معنا مباشرة!'
+                                            : 'Click the copy button below to copy your ticket details, then click "Open Instagram" to message us and confirm directly!'}
                                     </p>
                                 </div>
 

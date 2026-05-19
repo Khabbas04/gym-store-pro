@@ -29,6 +29,45 @@ export default function ProductPage() {
     const relatedProducts = product?.related_products || [];
     const alsoBoughtProducts = product?.customers_also_bought || [];
 
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+
+    const allImages = React.useMemo(() => {
+        if (!product) return [];
+        return [product.image, ...(product.images || [])].filter(Boolean);
+    }, [product]);
+
+    // Sync activeImage with activeIndex
+    useEffect(() => {
+        if (allImages.length > 0 && allImages[activeIndex]) {
+            setActiveImage(allImages[activeIndex]);
+        }
+    }, [activeIndex, allImages]);
+
+    const handleTouchStart = (e) => {
+        setTouchEnd(null);
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        const minSwipeDistance = 50;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            setActiveIndex((prev) => (prev + 1) % allImages.length);
+        } else if (isRightSwipe) {
+            setActiveIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+        }
+    };
+
     useEffect(() => {
         Promise.all([
             getProduct(id),
@@ -38,6 +77,7 @@ export default function ProductPage() {
                 setProduct(result);
                 setReviews(reviewsResult.data || []);
                 setActiveImage(result?.image || '');
+                setActiveIndex(0);
                 const firstSize = result?.sizes?.[0] || '';
                 setSize(firstSize);
 
@@ -83,36 +123,74 @@ export default function ProductPage() {
                 <div className="grid gap-24 lg:grid-cols-2">
                     {/* Image Gallery */}
                     <div className="space-y-6">
-                        <div className="aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/5 shadow-2xl relative group">
+                        <div 
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
+                            className="aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/5 shadow-2xl relative group select-none cursor-grab active:cursor-grabbing"
+                        >
                             <img 
                                 src={activeImage || product.image || '/images/product-placeholder.svg'} 
                                 alt={product.name} 
-                                className="h-full w-full object-cover transition-all duration-500 hover:scale-105" 
+                                className="h-full w-full object-cover transition-all duration-500 hover:scale-105 pointer-events-none" 
                             />
+
+                            {/* Prev/Next buttons */}
+                            {allImages.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveIndex((prev) => (prev - 1 + allImages.length) % allImages.length)}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white backdrop-blur-md transition-all hover:bg-[#f6eace] hover:text-black hover:scale-110 active:scale-95 md:opacity-0 group-hover:opacity-100 opacity-100 duration-300"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setActiveIndex((prev) => (prev + 1) % allImages.length)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white backdrop-blur-md transition-all hover:bg-[#f6eace] hover:text-black hover:scale-110 active:scale-95 md:opacity-0 group-hover:opacity-100 opacity-100 duration-300"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+
+                                    {/* Swiper dots */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/5">
+                                        {allImages.map((_, index) => (
+                                            <button
+                                                key={index}
+                                                type="button"
+                                                onClick={() => setActiveIndex(index)}
+                                                className={`h-1.5 rounded-full transition-all duration-300 ${activeIndex === index ? 'w-4 bg-[#f6eace]' : 'w-1.5 bg-white/40 hover:bg-white/60'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
+
                         {/* Thumbnails */}
-                        {(() => {
-                            const allImages = [product.image, ...(product.images || [])].filter(Boolean);
-                            if (allImages.length <= 1) return null;
-                            return (
-                                <div className="flex gap-4 overflow-x-auto py-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#f6eace]/20">
-                                    {allImages.map((imgUrl, index) => (
-                                        <button
-                                            key={index}
-                                            type="button"
-                                            onClick={() => setActiveImage(imgUrl)}
-                                            className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border bg-[#0a1019] transition-all duration-300 ${
-                                                activeImage === imgUrl 
-                                                ? 'border-[#f6eace] ring-4 ring-[#f6eace]/15 scale-95' 
-                                                : 'border-white/10 opacity-70 hover:border-white/30 hover:opacity-100'
-                                            }`}
-                                        >
-                                            <img src={imgUrl} alt={`${product.name} - ${index}`} className="h-full w-full object-cover" />
-                                        </button>
-                                    ))}
-                                </div>
-                            );
-                        })()}
+                        {allImages.length > 1 && (
+                            <div className="flex gap-4 overflow-x-auto py-2 scrollbar-none">
+                                {allImages.map((imgUrl, index) => (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        onClick={() => setActiveIndex(index)}
+                                        className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border bg-[#0a1019] transition-all duration-300 ${
+                                            activeIndex === index 
+                                            ? 'border-[#f6eace] ring-4 ring-[#f6eace]/15 scale-95' 
+                                            : 'border-white/10 opacity-70 hover:border-white/30 hover:opacity-100'
+                                        }`}
+                                    >
+                                        <img src={imgUrl} alt={`${product.name} - ${index}`} className="h-full w-full object-cover pointer-events-none" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Info */}
