@@ -33,31 +33,82 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="bg-[#02040a] text-white min-h-screen">
             <PageHeader
                 eyebrow={t('signup')}
                 title={t('create_account')}
                 subtitle={t('register_subtitle')}
-                actions={(
-                    <Link to="/shop" className="btn-ghost px-5 py-2 text-sm">
-                        {t('explore_shop')}
-                    </Link>
-                )}
+                watermark="SIGNUP"
             />
 
-            <div className="surface-card mx-auto max-w-md rounded-3xl p-8">
-                {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+            <section className="mx-auto max-w-[1600px] px-6 py-20 sm:px-12">
+                <div className="mx-auto max-w-md rounded-3xl border border-white/5 bg-white/[0.01] p-10 backdrop-blur-md space-y-8 shadow-2xl">
+                    {error && (
+                        <div className="border border-red-500/20 bg-red-500/10 px-6 py-4 rounded-xl">
+                            <p className="text-[11px] font-black uppercase tracking-widest text-red-400">{error}</p>
+                        </div>
+                    )}
 
-                <form onSubmit={onSubmit} className="mt-6 space-y-4">
-                    <input name="name" value={form.name} onChange={onInputChange} placeholder={t('full_name')} className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 outline-none" required />
-                    <input name="email" type="email" value={form.email} onChange={onInputChange} placeholder={t('email')} className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 outline-none" required />
-                    <input name="password" type="password" value={form.password} onChange={onInputChange} placeholder={t('password')} className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 outline-none" required />
-                    <input name="password_confirmation" type="password" value={form.password_confirmation} onChange={onInputChange} placeholder={t('confirm_password')} className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 outline-none" required />
-                    <button disabled={loading} className="w-full rounded-xl bg-[#f6eace] px-4 py-3 font-semibold text-slate-900 disabled:opacity-60">{loading ? t('creating') : t('register')}</button>
-                </form>
+                    <form onSubmit={onSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('full_name')}</label>
+                            <input
+                                name="name"
+                                value={form.name}
+                                onChange={onInputChange}
+                                className="w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none transition-colors focus:border-[#f6eace]"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('email')}</label>
+                            <input
+                                name="email"
+                                type="email"
+                                value={form.email}
+                                onChange={onInputChange}
+                                className="w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none transition-colors focus:border-[#f6eace]"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('password')}</label>
+                            <input
+                                name="password"
+                                type="password"
+                                value={form.password}
+                                onChange={onInputChange}
+                                className="w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none transition-colors focus:border-[#f6eace]"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('confirm_password')}</label>
+                            <input
+                                name="password_confirmation"
+                                type="password"
+                                value={form.password_confirmation}
+                                onChange={onInputChange}
+                                className="w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none transition-colors focus:border-[#f6eace]"
+                                required
+                            />
+                        </div>
 
-                <p className="mt-5 text-sm text-slate-400">{t('already_account')} <Link className="text-[#f6eace]" to="/login">{t('login')}</Link></p>
-            </div>
+                        <button
+                            disabled={loading}
+                            className="w-full bg-[#f6eace] py-4 text-xs font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50 rounded-xl mt-8"
+                        >
+                            {loading ? t('creating') : t('register')}
+                        </button>
+                    </form>
+
+                    <div className="text-center pt-4 border-t border-white/5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                            {t('already_account')} <Link className="text-white hover:text-[#f6eace] transition-colors" to="/login">{t('login')}</Link>
+                        </p>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }

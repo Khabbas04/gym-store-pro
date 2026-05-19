@@ -33,16 +33,18 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="relative -mt-10 mb-[-40px] w-screen overflow-hidden bg-[#02040a] text-white" style={{ marginInline: 'calc(50% - 50vw)' }}>
-            <section className="mx-auto flex min-h-[80vh] max-w-[1600px] flex-col items-center justify-center px-6 py-24 sm:px-12">
-                <div className="w-full max-w-sm">
-                    <div className="mb-12 text-center">
-                        <span className="text-xs font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('login')}</span>
-                        <h1 className="mt-4 text-4xl font-black uppercase tracking-tight">{t('welcome_back')}</h1>
-                    </div>
+        <div className="bg-[#02040a] text-white min-h-screen">
+            <PageHeader
+                eyebrow={t('login')}
+                title={t('welcome_back')}
+                subtitle={t('login_subtitle')}
+                watermark="LOGIN"
+            />
 
+            <section className="mx-auto max-w-[1600px] px-6 py-20 sm:px-12">
+                <div className="mx-auto max-w-md rounded-3xl border border-white/5 bg-white/[0.01] p-10 backdrop-blur-md space-y-8 shadow-2xl">
                     {error && (
-                        <div className="mb-8 border border-red-500/20 bg-red-500/10 px-6 py-4">
+                        <div className="border border-red-500/20 bg-red-500/10 px-6 py-4 rounded-xl">
                             <p className="text-[11px] font-black uppercase tracking-widest text-red-400">{error}</p>
                         </div>
                     )}
@@ -73,14 +75,14 @@ export default function LoginPage() {
 
                         <button
                             disabled={loading}
-                            className="mt-12 w-full bg-[#f6eace] py-5 text-sm font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50"
+                            className="w-full bg-[#f6eace] py-4 text-xs font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50 rounded-xl mt-8"
                         >
                             {loading ? t('signing_in') : t('login')}
                         </button>
                     </form>
 
-                    <div className="mt-12 text-center">
-                        <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    <div className="text-center pt-4 border-t border-white/5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                             {t('no_account')} <Link className="text-white hover:text-[#f6eace] transition-colors" to="/register">{t('create_one')}</Link>
                         </p>
                     </div>

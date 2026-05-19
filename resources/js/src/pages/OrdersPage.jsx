@@ -72,12 +72,12 @@ export default function OrdersPage() {
     if (!user) {
         return (
             <div className="bg-transparent text-white">
-                <section className="bg-white/5 py-24">
-                    <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('nav_orders')}</span>
-                        <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-7xl">{t('my_orders')}</h1>
-                    </div>
-                </section>
+                <PageHeader
+                    eyebrow={t('nav_orders')}
+                    title={t('my_orders')}
+                    subtitle={t('orders_subtitle')}
+                    watermark="ORDERS"
+                />
                 <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                     {location.state?.orderNumber ? (
                         <div className="space-y-12 max-w-2xl mx-auto">
@@ -141,13 +141,12 @@ export default function OrdersPage() {
 
     return (
         <div className="bg-[#02040a] text-white">
-            {/* Minimalist Title Section */}
-            <section className="bg-white/5 py-24">
-                <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('nav_orders')}</span>
-                    <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-7xl">{t('my_orders')}</h1>
-                </div>
-            </section>
+            <PageHeader
+                eyebrow={t('nav_orders')}
+                title={t('my_orders')}
+                subtitle={t('orders_subtitle')}
+                watermark="ORDERS"
+            />
 
             <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                 <div className="mb-16 border-b border-white/5 pb-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">

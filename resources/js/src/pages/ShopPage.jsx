@@ -88,22 +88,12 @@ export default function ShopPage() {
             <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] rounded-full bg-white/[0.02] blur-[150px] pointer-events-none -z-10" />
 
             {/* Immersive Premium Header */}
-            <section className="mx-auto max-w-[1600px] px-6 pt-40 pb-10 sm:px-12">
-                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-12 sm:p-20 shadow-2xl backdrop-blur-md">
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f6eace]/10 blur-[80px] pointer-events-none" />
-                    <div className="relative z-10 max-w-3xl space-y-6">
-                        <span className="inline-block text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
-                            {t('nav_shop')}
-                        </span>
-                        <h1 className="text-4xl font-black uppercase tracking-tight sm:text-7xl leading-[1.15] py-2 text-glow bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-[#f6eace]">
-                            {t('shop_title')}
-                        </h1>
-                        <p className="text-xs sm:text-sm font-semibold leading-relaxed text-slate-400">
-                            {t('shop_subtitle')}
-                        </p>
-                    </div>
-                </div>
-            </section>
+            <PageHeader
+                eyebrow={t('nav_shop')}
+                title={t('shop_title')}
+                subtitle={t('shop_subtitle')}
+                watermark="SHOP"
+            />
 
             {/* Filter Section - Premium Glass Panel */}
             <section className="mx-auto max-w-[1600px] px-6 py-8 sm:px-12">

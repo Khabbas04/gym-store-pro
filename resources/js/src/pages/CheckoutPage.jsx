@@ -67,13 +67,12 @@ export default function CheckoutPage() {
 
     return (
         <div className="bg-[#02040a] text-white">
-            {/* Minimalist Title Section */}
-            <section className="bg-white/5 py-24">
-                <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('checkout')}</span>
-                    <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-7xl">{t('checkout')}</h1>
-                </div>
-            </section>
+            <PageHeader
+                eyebrow={t('checkout')}
+                title={t('checkout')}
+                subtitle={t('checkout_subtitle')}
+                watermark="CHECKOUT"
+            />
 
             <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                 <div className="grid gap-24 lg:grid-cols-[1fr_450px]">

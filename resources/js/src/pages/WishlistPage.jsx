@@ -43,12 +43,12 @@ export default function WishlistPage() {
     if (!user) {
         return (
             <div className="bg-[#02040a] text-white">
-                <section className="bg-white/5 py-24">
-                    <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('nav_wishlist')}</span>
-                        <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-7xl">{t('wishlist_title')}</h1>
-                    </div>
-                </section>
+                <PageHeader
+                    eyebrow={t('nav_wishlist')}
+                    title={t('wishlist_title')}
+                    subtitle={t('wishlist_subtitle')}
+                    watermark="WISHLIST"
+                />
                 <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                     <p className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-600">{t('wishlist_login_required')}</p>
                 </section>
@@ -58,13 +58,12 @@ export default function WishlistPage() {
 
     return (
         <div className="bg-[#02040a] text-white">
-            {/* Minimalist Title Section */}
-            <section className="bg-white/5 py-24">
-                <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">{t('nav_wishlist')}</span>
-                    <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-7xl">{t('wishlist_title')}</h1>
-                </div>
-            </section>
+            <PageHeader
+                eyebrow={t('nav_wishlist')}
+                title={t('wishlist_title')}
+                subtitle={t('wishlist_subtitle')}
+                watermark="WISHLIST"
+            />
 
             <section className="mx-auto max-w-[1600px] px-6 py-32 sm:px-12">
                 <div className="mb-16 border-b border-white/5 pb-10 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">

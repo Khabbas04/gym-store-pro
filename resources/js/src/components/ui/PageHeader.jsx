@@ -1,44 +1,68 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
-export default function PageHeader({ eyebrow, title, subtitle, rightSlot, actions, bottomSlot }) {
+export default function PageHeader({ eyebrow, title, subtitle, watermark, rightSlot, actions, bottomSlot }) {
+    const { isArabic } = useLanguage();
+    const displayWatermark = watermark || title || 'SIRIUS';
+
     return (
-        <section className="surface-card relative overflow-hidden rounded-3xl p-6 sm:p-7">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(246,234,206,0.16),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(71,110,162,0.2),transparent_52%)]" />
-            <div className="absolute -top-24 right-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(246,234,206,0.3),transparent_60%)] blur-2xl" />
-            <div className="absolute -bottom-24 left-6 h-32 w-32 rounded-full bg-[radial-gradient(circle,rgba(88,120,178,0.28),transparent_62%)] blur-2xl" />
+        <section className="relative overflow-hidden pt-36 pb-12 sm:pt-48 sm:pb-16 px-6 sm:px-12 mx-auto max-w-[1600px] border-b border-white/5">
+            {/* Ambient Backlight Glows */}
+            <div className="absolute top-1/4 left-1/12 w-[350px] h-[350px] rounded-full bg-[#f6eace]/5 blur-[120px] pointer-events-none -z-10" />
+            <div className="absolute top-1/2 right-1/10 w-[400px] h-[400px] rounded-full bg-white/[0.01] blur-[150px] pointer-events-none -z-10" />
 
-            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div className="space-y-3">
-                    {eyebrow ? (
-                        <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300">
-                            {eyebrow}
-                        </span>
-                    ) : null}
-                    <h1 className="text-3xl font-black text-[#fff4dd] text-glow sm:text-4xl">
-                        {title}
-                    </h1>
-                    {subtitle ? (
-                        <p className="text-sm text-slate-300 sm:text-base">
-                            {subtitle}
-                        </p>
-                    ) : null}
+            {/* Giant Luxury Watermark Text */}
+            <div className={`absolute select-none pointer-events-none font-black text-white/[0.02] uppercase leading-none tracking-[0.1em] -z-10 text-[9vw] sm:text-[10vw] hidden md:block ${
+                isArabic ? 'left-6 bottom-4' : 'right-6 bottom-4'
+            }`}>
+                {displayWatermark}
+            </div>
+
+            {/* Layout Wrapper */}
+            <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+                <div className="flex gap-6 items-start">
+                    {/* Vertical Glowing Accent Bar */}
+                    <div className="w-[3px] bg-gradient-to-b from-[#f6eace] via-[#f6eace]/50 to-transparent h-16 self-stretch rounded-full" />
+                    
+                    <div className="space-y-4">
+                        {eyebrow ? (
+                            <div className="flex items-center gap-3">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
+                                <span className={`text-[10px] font-black uppercase text-[#f6eace] ${isArabic ? 'tracking-normal' : 'tracking-[0.4em]'}`}>
+                                    {eyebrow}
+                                </span>
+                            </div>
+                        ) : null}
+                        
+                        <h1 className="text-3xl font-black uppercase tracking-tight sm:text-6xl text-white leading-[1.15] bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-[#f6eace]/90">
+                            {title}
+                        </h1>
+
+                        {subtitle ? (
+                            <p className="max-w-2xl text-xs sm:text-sm font-semibold leading-relaxed text-slate-400">
+                                {subtitle}
+                            </p>
+                        ) : null}
+                    </div>
                 </div>
 
+                {/* Right / Side Content */}
                 {rightSlot ? (
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-4 shrink-0">
                         {rightSlot}
                     </div>
                 ) : null}
             </div>
 
+            {/* Actions / Buttons row */}
             {actions ? (
-                <div className="relative mt-6 flex flex-wrap items-center gap-3">
+                <div className="relative z-10 mt-8 flex flex-wrap items-center gap-4 border-t border-white/5 pt-6">
                     {actions}
                 </div>
             ) : null}
 
             {bottomSlot ? (
-                <div className="relative mt-6">
+                <div className="relative z-10 mt-8">
                     {bottomSlot}
                 </div>
             ) : null}
@@ -48,9 +72,9 @@ export default function PageHeader({ eyebrow, title, subtitle, rightSlot, action
 
 export function StatChip({ label, value }) {
     return (
-        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-200">
-            <span className="uppercase tracking-[0.2em] text-slate-400">{label}</span>
-            <span className="font-semibold text-white">{value}</span>
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md px-5 py-3 text-xs text-slate-300 shadow-sm hover:border-white/20 transition-all">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</span>
+            <span className="font-black text-white">{value}</span>
         </div>
     );
 }
