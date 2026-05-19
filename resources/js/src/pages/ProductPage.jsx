@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import PageHeader, { StatChip } from '../components/ui/PageHeader';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -10,11 +10,14 @@ import { formatJOD } from '../utils/currency';
 
 export default function ProductPage() {
     const { id } = useParams();
+    const location = useLocation();
+    const initialProduct = location.state?.product || null;
+
     const { user } = useAuth();
     const { addItem } = useCart();
     const { t, language } = useLanguage();
     const { pushToast } = useToast();
-    const [product, setProduct] = useState(null);
+    const [product, setProduct] = useState(initialProduct);
     const [reviews, setReviews] = useState([]);
     const [error, setError] = useState('');
     const [size, setSize] = useState('');
@@ -69,6 +72,18 @@ export default function ProductPage() {
     };
 
     useEffect(() => {
+        const currentLocProduct = location.state?.product || null;
+        setProduct(currentLocProduct);
+        if (currentLocProduct) {
+            setActiveImage(currentLocProduct.image || '');
+            setActiveIndex(0);
+            setSize(currentLocProduct.sizes?.[0] || '');
+        } else {
+            setActiveImage('');
+            setActiveIndex(0);
+            setSize('');
+        }
+
         Promise.all([
             getProduct(id),
             getProductReviews(id).catch(() => ({ data: [] })),
@@ -77,9 +92,8 @@ export default function ProductPage() {
                 setProduct(result);
                 setReviews(reviewsResult.data || []);
                 setActiveImage(result?.image || '');
-                setActiveIndex(0);
                 const firstSize = result?.sizes?.[0] || '';
-                setSize(firstSize);
+                if (!size) setSize(firstSize);
 
                 const key = 'sirius_recently_viewed';
                 const current = JSON.parse(localStorage.getItem(key) || '[]');
@@ -94,8 +108,12 @@ export default function ProductPage() {
                     }).catch(() => setWishlisted(false));
                 }
             })
-                .catch(() => setError(t('error_product_not_found')));
-            }, [id, t, user]);
+                .catch(() => {
+                    if (!currentLocProduct) {
+                        setError(t('error_product_not_found'));
+                    }
+                });
+            }, [id, t, user, location.state]);
 
     if (error) {
         return <p className="rounded-xl border border-red-400/20 bg-red-500/10 p-4 text-red-200">{error}</p>;

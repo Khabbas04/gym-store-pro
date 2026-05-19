@@ -191,7 +191,7 @@ export default function HomePage() {
 
                     <div className="grid gap-x-8 gap-y-20 sm:grid-cols-2 lg:grid-cols-4">
                         {featured.map((product) => (
-                            <Link key={product.id} to={`/shop/${product.id}`} className="group block">
+                            <Link key={product.id} to={`/shop/${product.id}`} state={{ product }} className="group block">
                                 <div 
                                     onMouseMove={handleMouseMove}
                                     className="relative aspect-[4/5] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/10 transition-all duration-500 group-hover:border-[#f6eace]/35 group-hover:shadow-[0_15px_30px_rgba(246,234,206,0.06)] spotlight-card"
@@ -303,6 +303,7 @@ export default function HomePage() {
                                     {review.product && (
                                         <Link 
                                             to={`/shop/${review.product.id}`}
+                                            state={{ product: review.product }}
                                             className="flex items-center gap-3 border-t border-white/5 pt-4 group/prod"
                                         >
                                             <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/10 bg-black/40">

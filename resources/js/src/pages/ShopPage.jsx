@@ -229,7 +229,7 @@ export default function ShopPage() {
                     {!loading && products.map((product) => (
                         <div key={product.id} className="group relative flex flex-col">
                             {/* Product Detail Link Wrapper */}
-                            <Link to={`/shop/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/10 transition-all duration-500 group-hover:border-[#f6eace]/35 group-hover:shadow-[0_15px_30px_rgba(246,234,206,0.06)] spotlight-card">
+                            <Link to={`/shop/${product.id}`} state={{ product }} className="block relative aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/10 transition-all duration-500 group-hover:border-[#f6eace]/35 group-hover:shadow-[0_15px_30px_rgba(246,234,206,0.06)] spotlight-card">
                                 <img
                                     src={product.image || '/images/product-placeholder.svg'}
                                     alt={product.name}
@@ -280,7 +280,7 @@ export default function ShopPage() {
                             {/* Card Footer details */}
                             <div className="mt-8 px-2 space-y-3">
                                 <div className="flex items-center justify-between gap-4">
-                                    <Link to={`/shop/${product.id}`} className="text-sm font-black uppercase tracking-widest text-white hover:text-[#f6eace] transition-colors line-clamp-1">
+                                    <Link to={`/shop/${product.id}`} state={{ product }} className="text-sm font-black uppercase tracking-widest text-white hover:text-[#f6eace] transition-colors line-clamp-1">
                                         {product.name}
                                     </Link>
                                     <p className="text-sm font-black text-[#f6eace] shrink-0">
