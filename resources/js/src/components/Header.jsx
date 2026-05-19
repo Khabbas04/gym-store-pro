@@ -7,7 +7,7 @@ import { formatJOD } from '../utils/currency';
 
 export default function Header({ user, onLogout }) {
     const { items, itemsCount, subtotal, updateQuantity, removeItem } = useCart();
-    const { t, toggleLanguage, isArabic } = useLanguage();
+    const { t, toggleLanguage, isArabic, language } = useLanguage();
     const [accountOpen, setAccountOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const accountMenuRef = useRef(null);
