@@ -52,25 +52,60 @@ export default function HomePage() {
 
     return (
         <div className="bg-[#02040a] text-white overflow-x-hidden">
-            {/* Hero Section - Full Immersive */}
+            {/* Hero Section - Split Horizon */}
             <section className="relative h-screen w-full">
-                
-                <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
-                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                        <span className="mb-6 block text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
+                <div className="mx-auto flex h-full max-w-[1700px] flex-col items-stretch gap-12 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
+                    {/* Left: Statement */}
+                    <div className="flex-1 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
+                        <span className="mb-6 inline-flex items-center gap-3 text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
+                            <span className="h-[1px] w-10 bg-[#f6eace]/60" />
                             {t('home_hero_caption')}
                         </span>
-                        <h1 className="max-w-6xl text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f6eace] to-white sm:text-7xl lg:text-[9rem] leading-[1.15] py-3 animate-in zoom-in-95 duration-1000">
+                        <h1 className="text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f6eace] to-white sm:text-7xl lg:text-[8.5rem] leading-[1.05]">
                             {t('home_title')}
                         </h1>
-                        <p className="mx-auto mt-12 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed">
+                        <p className="mt-10 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed mx-auto lg:mx-0">
                             {t('home_brand_subtitle')}
                         </p>
-                        <div className="mt-16 flex flex-wrap justify-center gap-8">
-                            <Link to="/shop" className="group relative overflow-hidden bg-[#f6eace] px-16 py-6 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
+                        <div className="mt-14 flex flex-wrap justify-center lg:justify-start gap-6">
+                            <Link to="/shop" className="group relative overflow-hidden bg-[#f6eace] px-12 py-5 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
                                 <span className="relative z-10">{t('explore_shop')}</span>
                                 <div className="absolute inset-0 -translate-x-full bg-white transition-transform duration-500 group-hover:translate-x-0" />
                             </Link>
+                            <div className="hidden sm:flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+                                <span className="h-[1px] w-12 bg-white/20" />
+                                {t('featured')}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Vertical product runway */}
+                    <div className="relative flex-1 max-w-xl mx-auto lg:mx-0 animate-in fade-in slide-in-from-right-8 duration-1000">
+                        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                        <div className="relative grid gap-6">
+                            {(featured.length ? featured : allProducts).slice(0, 4).map((product, index) => (
+                                <Link
+                                    key={product.id}
+                                    to={`/shop/${product.id}`}
+                                    state={{ product }}
+                                    className={`group relative flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-all duration-500 hover:border-[#f6eace]/40 hover:bg-white/[0.04] ${index % 2 === 0 ? 'lg:translate-x-10' : 'lg:-translate-x-10'}`}
+                                >
+                                    <div className="h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+                                        <img
+                                            src={product.image || '/images/product-placeholder.svg'}
+                                            alt={product.name}
+                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('featured')}</p>
+                                        <h3 className="text-xs font-black uppercase tracking-widest text-white truncate group-hover:text-[#f6eace] transition-colors">
+                                            {product.name}
+                                        </h3>
+                                        <p className="mt-1 text-[10px] font-black text-[#f6eace]">{formatJOD(product.price, language)}</p>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </div>
