@@ -146,7 +146,7 @@ export default function CartPage() {
 
                             <button
                                 disabled={!items.length}
-                                onClick={() => navigate(user ? '/checkout' : '/login')}
+                                onClick={() => navigate('/checkout')}
                                 className="mt-16 w-full bg-[#f6eace] py-6 text-sm font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50"
                             >
                                 {t('proceed_checkout')}
