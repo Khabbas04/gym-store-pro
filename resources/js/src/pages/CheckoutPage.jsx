@@ -56,26 +56,12 @@ export default function CheckoutPage() {
 
             const order = await checkoutOrder(payload);
             
-            // Format order details for WhatsApp message redirection
-            const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '962796245133';
-            const itemsText = items.map(item => `• ${item.name} (${item.size || 'N/A'}) x${item.quantity}`).join('\n');
-            const message = `مرحباً SIRIUS، أود تأكيد طلبي:\n\n` +
-                `📦 *رقم الطلب:* ${order.order_number}\n` +
-                `👤 *الاسم:* ${form.customer_name}\n` +
-                `📞 *الهاتف:* ${form.phone}\n` +
-                `📍 *المحافظة:* ${form.city}\n` +
-                `🏠 *العنوان:* ${form.address_line}\n\n` +
-                `🛍️ *المنتجات:*\n${itemsText}\n\n` +
-                `💵 *المجموع الإجمالي:* ${total} JOD\n` +
-                (form.notes ? `📝 *ملاحظات:* ${form.notes}\n` : '') +
-                `\nشكراً لكم!`;
-                
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            // Redirect to Instagram page in a new tab
+            const instagramUrl = 'https://www.instagram.com/sirius.jo_/';
             
             clearCart();
-            window.open(whatsappUrl, '_blank');
-            navigate('/orders', { state: { orderNumber: order.order_number } });
+            window.open(instagramUrl, '_blank');
+            navigate('/orders', { state: { orderNumber: order.order_number, isNewOrder: true, orderDetails: order } });
         } catch (e) {
             setError(e.message || t('error_checkout_failed'));
         } finally {

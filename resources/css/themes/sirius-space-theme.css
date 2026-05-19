@@ -13,17 +13,7 @@
     inset: 0;
     pointer-events: none;
     z-index: -9;
-    background-image:
-        radial-gradient(80% 55% at 72% 34%, rgba(255, 255, 255, 0.18), transparent 70%),
-        radial-gradient(95% 72% at 28% -6%, rgba(224, 228, 240, 0.14), transparent 66%),
-        radial-gradient(75% 48% at 56% 84%, rgba(188, 194, 210, 0.1), transparent 72%),
-        linear-gradient(180deg, rgba(0, 0, 0, 0.74) 0%, rgba(0, 0, 0, 0.8) 100%),
-        url('/images/sirius.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: grayscale(1) contrast(1.18) brightness(0.62);
-    opacity: 0.95;
+    background: transparent;
 }
 
 .theme-sirius-space.app-shell-bg::after {
