@@ -262,6 +262,7 @@ export default function ProductPage() {
                                 onClick={() => {
                                     addItem(product, quantity, size || null);
                                     pushToast(t('added_to_cart'), 'success');
+                                    window.dispatchEvent(new Event('open-cart-drawer'));
                                 }}
                                 className="w-full bg-[#f6eace] py-6 text-sm font-black uppercase tracking-[0.2em] text-black transition-transform active:scale-95 disabled:opacity-50"
                             >

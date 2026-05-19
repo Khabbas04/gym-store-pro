@@ -40,6 +40,15 @@ export default function HomePage() {
         return featured[0] || allProducts[0];
     }, [featured, allProducts]);
 
+    const handleMouseMove = (e) => {
+        const card = e.currentTarget;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+    };
+
     return (
         <div className="bg-[#02040a] text-white overflow-x-hidden">
             {/* Hero Section - Full Immersive */}
@@ -93,7 +102,8 @@ export default function HomePage() {
                         <Link 
                             key={col.id} 
                             to={`/shop?collection=${col.id}`} 
-                            className="group relative aspect-[3/4] overflow-hidden bg-white/5 rounded-3xl border border-white/10 transition-all hover:border-[#f6eace]/30"
+                            onMouseMove={handleMouseMove}
+                            className="group relative aspect-[3/4] overflow-hidden bg-white/5 rounded-3xl border border-white/10 transition-all hover:border-[#f6eace]/30 spotlight-card"
                         >
                             {col.image ? (
                                 <div className="absolute inset-0">
@@ -145,7 +155,10 @@ export default function HomePage() {
                     <div className="grid gap-x-8 gap-y-20 sm:grid-cols-2 lg:grid-cols-4">
                         {featured.map((product) => (
                             <Link key={product.id} to={`/shop/${product.id}`} className="group block">
-                                <div className="relative aspect-[4/5] overflow-hidden bg-[#0a1019]">
+                                <div 
+                                    onMouseMove={handleMouseMove}
+                                    className="relative aspect-[4/5] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/10 transition-all duration-500 group-hover:border-[#f6eace]/35 group-hover:shadow-[0_15px_30px_rgba(246,234,206,0.06)] spotlight-card"
+                                >
                                     <img 
                                         src={product.image || '/images/product-placeholder.svg'} 
                                         alt={product.name} 
@@ -153,7 +166,7 @@ export default function HomePage() {
                                     />
                                     <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
                                     {product.featured && (
-                                        <div className="absolute left-6 top-6 bg-[#f6eace] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-black">
+                                        <div className="absolute left-6 top-6 bg-[#f6eace] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-black rounded-lg">
                                             {t('badge_featured')}
                                         </div>
                                     )}

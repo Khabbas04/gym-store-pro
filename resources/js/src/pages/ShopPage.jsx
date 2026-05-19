@@ -22,6 +22,15 @@ export default function ShopPage() {
     const totalResults = meta?.total ?? products.length;
     const hasActiveFilters = Boolean(query || category || featured);
 
+    const handleMouseMove = (e) => {
+        const card = e.currentTarget;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+    };
+
     useEffect(() => {
         getCategories().then(setCategories).catch(() => {});
     }, []);
@@ -132,7 +141,10 @@ export default function ShopPage() {
 
                     {products.map((product) => (
                         <Link key={product.id} to={`/shop/${product.id}`} className="group block">
-                            <div className="relative aspect-[3/4] overflow-hidden bg-[#0a1019]">
+                            <div 
+                                onMouseMove={handleMouseMove}
+                                className="relative aspect-[3/4] overflow-hidden bg-[#0a1019] rounded-3xl border border-white/10 transition-all duration-500 group-hover:border-[#f6eace]/35 group-hover:shadow-[0_15px_30px_rgba(246,234,206,0.06)] spotlight-card"
+                            >
                                 <img
                                     src={product.image || '/images/product-placeholder.svg'}
                                     alt={product.name}
@@ -141,7 +153,7 @@ export default function ShopPage() {
                                 <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
                                 <div className="absolute left-6 top-6 flex flex-wrap gap-3">
                                     {product.featured && (
-                                        <span className="bg-[#f6eace] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-black">
+                                        <span className="bg-[#f6eace] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-black rounded-lg">
                                             {t('badge_featured')}
                                         </span>
                                     )}

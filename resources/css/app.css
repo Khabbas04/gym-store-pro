@@ -285,3 +285,25 @@ body::before {
 .relative.-mt-10.mb-\[-40px\].w-screen.overflow-hidden.bg-\[\#02040a\] {
     background-color: transparent !important;
 }
+
+/* Spotlight Card Hover Effect */
+.spotlight-card {
+    position: relative;
+}
+.spotlight-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 300ms ease;
+    background: radial-gradient(
+        350px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(246, 234, 206, 0.08),
+        transparent 80%
+    );
+}
+.spotlight-card:hover::before {
+    opacity: 1;
+}
