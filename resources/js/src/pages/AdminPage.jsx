@@ -12,6 +12,10 @@ import {
     updateAdminOrderStatus,
     updateAdminProductInventory,
     updateProduct,
+    getCollections,
+    createCollection,
+    updateCollection,
+    deleteCollection,
 } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 import { formatJOD } from '../utils/currency';
@@ -34,6 +38,7 @@ export default function AdminPage({ section = 'overview' }) {
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
+    const [collections, setCollections] = useState([]);
     const [activityLogs, setActivityLogs] = useState([]);
     const [productDrafts, setProductDrafts] = useState({});
     const [savingProductId, setSavingProductId] = useState(null);
@@ -73,6 +78,41 @@ export default function AdminPage({ section = 'overview' }) {
     const [activityQuery, setActivityQuery] = useState('');
     const stats = useMemo(() => dashboard?.stats ?? {}, [dashboard]);
 
+    // Collections logic
+    const [collectionForm, setCollectionForm] = useState({ name: '', description: '', is_active: true });
+    const [editingCollection, setEditingCollection] = useState(null);
+
+    async function handleSaveCollection(e) {
+        e.preventDefault();
+        setError('');
+        setMessage('');
+        try {
+            if (editingCollection) {
+                await updateCollection(editingCollection.id, collectionForm);
+                setMessage(t('admin_collection_updated') || 'Collection updated');
+            } else {
+                await createCollection(collectionForm);
+                setMessage(t('admin_collection_created') || 'Collection created');
+            }
+            setCollectionForm({ name: '', description: '', is_active: true });
+            setEditingCollection(null);
+            await reload();
+        } catch (err) {
+            setError(err.message || 'Error saving collection');
+        }
+    }
+
+    async function handleDeleteCollection(id) {
+        if (!window.confirm(t('admin_confirm_delete_collection') || 'Are you sure you want to delete this collection?')) return;
+        try {
+            await deleteCollection(id);
+            setMessage(t('admin_collection_deleted') || 'Collection deleted');
+            await reload();
+        } catch (err) {
+            setError(err.message || 'Error deleting collection');
+        }
+    }
+
     useEffect(() => {
         reload();
     }, [ordersQuery, usersQuery, activityQuery, section]);
@@ -94,11 +134,12 @@ export default function AdminPage({ section = 'overview' }) {
         setError('');
 
         try {
-            const [dashboardResult, productsResult, ordersResult, usersResult] = await Promise.allSettled([
+            const [dashboardResult, productsResult, ordersResult, usersResult, collectionsResult] = await Promise.allSettled([
                 getAdminDashboard(),
                 getProducts({ per_page: 50 }),
                 getAdminOrders({ per_page: 15, ...ordersQuery }),
                 getAdminUsers({ q: usersQuery, per_page: 15 }),
+                getCollections(),
             ]);
 
             if (dashboardResult.status === 'fulfilled') {
@@ -115,6 +156,10 @@ export default function AdminPage({ section = 'overview' }) {
 
             if (usersResult.status === 'fulfilled') {
                 setUsers(usersResult.value.data || []);
+            }
+
+            if (collectionsResult.status === 'fulfilled') {
+                setCollections(collectionsResult.value || []);
             }
 
             if (section === 'activity') {
@@ -602,6 +647,119 @@ export default function AdminPage({ section = 'overview' }) {
                                 </div>
                             )}
                         </div>
+                    </div>
+                </section>
+            )}
+
+            {section === 'collections' && (
+                <section className="space-y-8 animate-in fade-in duration-500">
+                    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a1019] to-black p-8 shadow-2xl">
+                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#f6eace]/30 to-transparent" />
+                        <div className="mb-6 flex items-center justify-between border-b border-white/5 pb-4">
+                            <div>
+                                <h3 className="text-xl font-black uppercase tracking-[0.15em] text-[#f6eace]">
+                                    {editingCollection ? t('admin_edit_collection') || 'Edit Collection' : t('admin_create_collection') || 'Create New Collection'}
+                                </h3>
+                                <p className="mt-1 text-xs text-slate-400">{t('admin_collection_desc') || 'Group your products into beautiful collections.'}</p>
+                            </div>
+                            {editingCollection && (
+                                <button
+                                    onClick={() => {
+                                        setEditingCollection(null);
+                                        setCollectionForm({ name: '', description: '', is_active: true });
+                                    }}
+                                    className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white"
+                                >
+                                    {t('admin_cancel') || 'Cancel'}
+                                </button>
+                            )}
+                        </div>
+
+                        <form onSubmit={handleSaveCollection} className="space-y-6">
+                            <div className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_collection_name') || 'Collection Name'}</label>
+                                    <input
+                                        required
+                                        value={collectionForm.name}
+                                        onChange={(e) => setCollectionForm({ ...collectionForm, name: e.target.value })}
+                                        className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-[#f6eace]/40"
+                                        placeholder="e.g., Summer 2024"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_collection_description') || 'Description'}</label>
+                                    <input
+                                        value={collectionForm.description}
+                                        onChange={(e) => setCollectionForm({ ...collectionForm, description: e.target.value })}
+                                        className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white placeholder-slate-600 outline-none transition-all focus:border-[#f6eace]/40"
+                                        placeholder="A brief description"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={collectionForm.is_active}
+                                        onChange={(e) => setCollectionForm({ ...collectionForm, is_active: e.target.checked })}
+                                        className="h-5 w-5 rounded border-white/20 bg-black/50 text-[#f6eace] focus:ring-[#f6eace]"
+                                    />
+                                    <span className="text-xs font-black uppercase tracking-widest text-slate-300">{t('admin_active_visible') || 'Active (Visible)'}</span>
+                                </label>
+
+                                <button
+                                    type="submit"
+                                    className="rounded-xl bg-[#f6eace] hover:bg-white px-8 py-3 text-xs font-black uppercase tracking-[0.2em] text-black shadow-lg transition-all hover:shadow-[0_0_20px_rgba(246,234,206,0.3)]"
+                                >
+                                    {editingCollection ? t('admin_save_changes') || 'Save Changes' : t('admin_create_collection') || 'Create Collection'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {collections.map(collection => (
+                            <div key={collection.id} className={`relative overflow-hidden rounded-3xl border ${collection.is_active ? 'border-white/10' : 'border-red-500/20 opacity-75'} bg-[#0a1019] p-6 shadow-xl transition-all hover:-translate-y-1 hover:border-white/20`}>
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${collection.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                                        {collection.is_active ? t('status_active') || 'Active' : t('status_inactive') || 'Inactive'}
+                                    </span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                        {collection.products_count} {t('admin_products') || 'Products'}
+                                    </span>
+                                </div>
+                                <h4 className="text-xl font-black text-white">{collection.name}</h4>
+                                {collection.description && <p className="mt-2 text-xs text-slate-400 line-clamp-2">{collection.description}</p>}
+                                
+                                <div className="mt-6 flex items-center gap-3 border-t border-white/5 pt-4">
+                                    <button 
+                                        onClick={() => {
+                                            setEditingCollection(collection);
+                                            setCollectionForm({ name: collection.name, description: collection.description || '', is_active: collection.is_active });
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="flex-1 rounded-xl border border-blue-400/20 bg-blue-400/5 py-2.5 text-center text-[10px] font-black uppercase tracking-widest text-blue-300 transition-all hover:bg-blue-400/15"
+                                    >
+                                        {t('admin_edit') || 'Edit'}
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDeleteCollection(collection.id)}
+                                        className="flex-1 rounded-xl border border-red-400/20 bg-red-400/5 py-2.5 text-center text-[10px] font-black uppercase tracking-widest text-red-300 transition-all hover:bg-red-400/15"
+                                    >
+                                        {t('admin_delete') || 'Delete'}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+
+                        {collections.length === 0 && (
+                            <div className="col-span-full py-16 text-center rounded-3xl border border-white/5 bg-white/[0.02]">
+                                <span className="text-4xl opacity-50">✨</span>
+                                <p className="mt-4 text-xs font-black uppercase tracking-widest text-slate-400">{t('admin_no_collections') || 'No collections found'}</p>
+                            </div>
+                        )}
                     </div>
                 </section>
             )}

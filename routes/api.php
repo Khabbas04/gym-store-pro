@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\EngagementApiController;
 use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\CollectionApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:api')->group(function () {
@@ -13,6 +14,7 @@ Route::get('/products/{product}/reviews', [EngagementApiController::class, 'revi
 Route::get('/homepage/sections', [ProductApiController::class, 'homepage']);
 
 Route::get('/categories', [ProductApiController::class, 'categories']);
+Route::get('/collections', [CollectionApiController::class, 'index']);
 
 Route::post('/auth/register', [AuthApiController::class, 'register']);
 Route::post('/auth/login', [AuthApiController::class, 'login']);
@@ -37,6 +39,9 @@ Route::middleware(['throttle:120,1', 'auth.token', 'admin'])->group(function () 
 	Route::delete('/products/{product}', [ProductApiController::class, 'destroy']);
 	Route::get('/dashboard/summary', [ProductApiController::class, 'summary']);
 	Route::get('/admin/dashboard', [OrderApiController::class, 'adminDashboard']);
+	Route::post('/admin/collections', [CollectionApiController::class, 'store']);
+	Route::put('/admin/collections/{collection}', [CollectionApiController::class, 'update']);
+	Route::delete('/admin/collections/{collection}', [CollectionApiController::class, 'destroy']);
 	Route::get('/admin/orders', [OrderApiController::class, 'adminOrders']);
 	Route::put('/admin/orders/{order}/status', [OrderApiController::class, 'adminUpdateOrderStatus']);
 	Route::put('/admin/orders/{order}', [OrderApiController::class, 'adminUpdateOrder']);

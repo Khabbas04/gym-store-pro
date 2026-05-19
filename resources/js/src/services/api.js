@@ -104,6 +104,39 @@ export function getCategories() {
     return request('/api/categories', { headers: JSON_HEADERS });
 }
 
+export function getCollections() {
+    return request('/api/collections', { headers: JSON_HEADERS });
+}
+
+export function createCollection(data) {
+    return request('/api/admin/collections', {
+        method: 'POST',
+        headers: withAuthHeaders({
+            ...JSON_HEADERS,
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
+    });
+}
+
+export function updateCollection(id, data) {
+    return request(`/api/admin/collections/${id}`, {
+        method: 'PUT',
+        headers: withAuthHeaders({
+            ...JSON_HEADERS,
+            'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(data),
+    });
+}
+
+export function deleteCollection(id) {
+    return request(`/api/admin/collections/${id}`, {
+        method: 'DELETE',
+        headers: withAuthHeaders(JSON_HEADERS),
+    });
+}
+
 export function getHomepageSections() {
     return request('/api/homepage/sections', { headers: JSON_HEADERS });
 }

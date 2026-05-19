@@ -86,7 +86,7 @@ function AdminRoute({ user, logout }) {
         setSearchParams({ section: nextSection });
     }
 
-    if (section && !['overview', 'orders', 'products', 'users', 'activity'].includes(section)) {
+    if (section && !['overview', 'orders', 'products', 'collections', 'users', 'activity'].includes(section)) {
         return <Navigate to="/admin?section=overview" replace />;
     }
 
