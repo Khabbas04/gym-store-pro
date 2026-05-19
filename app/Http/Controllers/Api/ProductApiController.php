@@ -42,6 +42,8 @@ class ProductApiController extends Controller
         $hasReviews = Schema::hasTable('product_reviews');
         $hasOrderItems = Schema::hasTable('order_items');
 
+        $product->load('collections');
+
         if ($hasReviews) {
             $product->load([
                 'reviews' => fn ($query) => $query->with('user')->latest()->take(12),
@@ -75,7 +77,13 @@ class ProductApiController extends Controller
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = $this->productService->create($request->validated());
+        $validated = $request->validated();
+        $product = $this->productService->create($validated);
+        
+        if (isset($validated['collection_ids'])) {
+            $product->collections()->sync($validated['collection_ids']);
+        }
+
         $this->productService->clearCaches();
         $this->activityLogService->log('admin.product.created', $product, $request->user());
 
@@ -84,7 +92,13 @@ class ProductApiController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $updated = $this->productService->update($product, $request->validated());
+        $validated = $request->validated();
+        $updated = $this->productService->update($product, $validated);
+
+        if (array_key_exists('collection_ids', $validated)) {
+            $updated->collections()->sync($validated['collection_ids']);
+        }
+
         $this->productService->clearCaches();
         $this->activityLogService->log('admin.product.updated', $updated, $request->user());
 

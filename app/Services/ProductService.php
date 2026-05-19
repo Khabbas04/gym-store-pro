@@ -29,6 +29,7 @@ class ProductService
 
         return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($request, $perPage) {
             $query = Product::query()
+                ->with('collections')
                 ->when($request->filled('q'), function (Builder $builder) use ($request) {
                     $term = trim((string) $request->string('q'));
 

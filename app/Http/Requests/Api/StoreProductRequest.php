@@ -24,6 +24,8 @@ class StoreProductRequest extends FormRequest
             'featured' => 'nullable|boolean',
             'stock_quantity' => 'nullable|integer|min:0|max:99999',
             'is_popular' => 'nullable|boolean',
+            'collection_ids' => 'nullable|array',
+            'collection_ids.*' => 'exists:collections,id',
         ];
     }
 }

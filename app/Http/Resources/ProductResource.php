@@ -22,6 +22,7 @@ class ProductResource extends JsonResource
             'featured' => (bool) $this->featured,
             'stock_quantity' => (int) $this->stock_quantity,
             'is_popular' => (bool) $this->is_popular,
+            'collection_ids' => $this->whenLoaded('collections', fn () => $this->collections->pluck('id')->toArray(), []),
             'is_low_stock' => (int) $this->stock_quantity > 0 && (int) $this->stock_quantity <= 5,
             'reviews_count' => (int) ($this->reviews_count ?? 0),
             'reviews_avg_rating' => $this->reviews_avg_rating ? round((float) $this->reviews_avg_rating, 2) : null,

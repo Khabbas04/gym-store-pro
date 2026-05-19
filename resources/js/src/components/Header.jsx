@@ -48,13 +48,11 @@ export default function Header({ user, onLogout }) {
                 {/* 1. Brand (Left) */}
                 <div className="flex items-center justify-start lg:w-1/3">
                     <Link to="/" className="group flex items-center gap-3">
-                        <div className="relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center overflow-hidden rounded-xl bg-white/5 border border-white/10 transition-all duration-300 group-hover:border-[#f6eace]/40 group-hover:bg-white/10 group-hover:shadow-[0_0_15px_rgba(246,234,206,0.15)]">
-                            <img
-                                src="/images/icon.png?v=1"
-                                alt="Logo"
-                                className="h-7 w-7 sm:h-8 sm:w-8 object-contain brightness-125 transition-transform duration-500 group-hover:scale-110"
-                            />
-                        </div>
+                        <img
+                            src="/images/icon.png?v=1"
+                            alt="Logo"
+                            className="h-12 w-12 sm:h-16 sm:w-16 object-contain brightness-125 transition-transform duration-500 group-hover:scale-110"
+                        />
                         <span className="text-xl sm:text-2xl font-black uppercase tracking-[0.25em] text-white transition-colors duration-300 group-hover:text-[#f6eace]">SIRIUS</span>
                     </Link>
                 </div>
@@ -163,7 +161,7 @@ export default function Header({ user, onLogout }) {
                 <div className="fixed inset-0 z-[100] flex flex-col bg-[#04080f]/95 backdrop-blur-3xl animate-in slide-in-from-bottom-5 fade-in duration-300 lg:hidden">
                     <div className="flex items-center justify-between px-4 py-4 sm:px-8 border-b border-white/10">
                         <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                            <img src="/images/icon.png?v=1" alt="Logo" className="h-8 w-8 object-contain brightness-125" />
+                            <img src="/images/icon.png?v=1" alt="Logo" className="h-12 w-12 object-contain brightness-125" />
                             <span className="text-xl font-black uppercase tracking-[0.25em] text-[#f6eace]">SIRIUS</span>
                         </Link>
                         <button onClick={() => setMobileMenuOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-colors">

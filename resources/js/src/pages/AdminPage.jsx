@@ -30,6 +30,7 @@ const INITIAL_FORM = {
     featured: false,
     stock_quantity: 24,
     is_popular: false,
+    collection_ids: [],
 };
 
 export default function AdminPage({ section = 'overview' }) {
@@ -212,6 +213,7 @@ export default function AdminPage({ section = 'overview' }) {
             featured: Boolean(product.featured),
             stock_quantity: Number(product.stock_quantity || 0),
             is_popular: Boolean(product.is_popular),
+            collection_ids: product.collection_ids || [],
         });
         setEditingMainImageSource('url');
         setEditingMainImageFile(null);
@@ -249,6 +251,12 @@ export default function AdminPage({ section = 'overview' }) {
                 payload.append('featured', editingProductForm.featured ? '1' : '0');
                 payload.append('stock_quantity', String(editingProductForm.stock_quantity ?? 24));
                 payload.append('is_popular', editingProductForm.is_popular ? '1' : '0');
+                
+                if (editingProductForm.collection_ids && editingProductForm.collection_ids.length > 0) {
+                    editingProductForm.collection_ids.forEach((id, idx) => {
+                        payload.append(`collection_ids[${idx}]`, id);
+                    });
+                }
 
                 if (editingMainImageSource === 'file' && editingMainImageFile) {
                     payload.append('image', editingMainImageFile);
@@ -300,6 +308,12 @@ export default function AdminPage({ section = 'overview' }) {
                 payload.append('featured', form.featured ? '1' : '0');
                 payload.append('stock_quantity', String(form.stock_quantity ?? 24));
                 payload.append('is_popular', form.is_popular ? '1' : '0');
+                
+                if (form.collection_ids && form.collection_ids.length > 0) {
+                    form.collection_ids.forEach((id, idx) => {
+                        payload.append(`collection_ids[${idx}]`, id);
+                    });
+                }
                 
                 if (imageSourceType === 'file' && imageFile) {
                     payload.append('image', imageFile);
@@ -550,6 +564,33 @@ export default function AdminPage({ section = 'overview' }) {
                         )}
                     </div>
                 ))}
+            </div>
+        );
+    };
+
+    const renderCollectionsSelector = (currentForm, onChangeCallback) => {
+        if (!collections.length) return null;
+        return (
+            <div className="space-y-2 mt-4 pt-4 border-t border-white/5">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Collections</span>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {collections.map(c => (
+                        <label key={c.id} className={`flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer transition-all ${currentForm.collection_ids?.includes(c.id) ? 'border-[#f6eace]/30 bg-[#f6eace]/5' : 'border-white/5 bg-black/20 hover:bg-black/40'}`}>
+                            <input
+                                type="checkbox"
+                                checked={currentForm.collection_ids?.includes(c.id) || false}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    const ids = currentForm.collection_ids || [];
+                                    const newIds = checked ? [...ids, c.id] : ids.filter(id => id !== c.id);
+                                    onChangeCallback({ target: { name: 'collection_ids', value: newIds } });
+                                }}
+                                className="h-3 w-3 rounded border-white/20 bg-black/50 text-[#f6eace] focus:ring-0"
+                            />
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${currentForm.collection_ids?.includes(c.id) ? 'text-[#f6eace]' : 'text-slate-400'}`}>{c.name}</span>
+                        </label>
+                    ))}
+                </div>
             </div>
         );
     };
@@ -1079,6 +1120,8 @@ export default function AdminPage({ section = 'overview' }) {
                                 </div>
                             </div>
 
+                            {renderCollectionsSelector(form, onInputChange)}
+
                             {/* Image Source Selector */}
                             <div className="space-y-2">
                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">{t('admin_image_source') || 'Image Source'}</span>
@@ -1453,6 +1496,8 @@ export default function AdminPage({ section = 'overview' }) {
                                     <input name="sizes" value={editingProductForm.sizes} onChange={onEditingProductFormChange} placeholder="S, M, L, XL" className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-xs text-white outline-none focus:border-[#f6eace]/40 transition-all" />
                                 </div>
                             </div>
+
+                            {renderCollectionsSelector(editingProductForm, onEditingProductFormChange)}
 
                             {/* Main Image Source Selector */}
                             <div className="space-y-2">

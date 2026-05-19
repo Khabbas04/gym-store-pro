@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { getProducts } from '../services/api';
+import { getProducts, getCollections } from '../services/api';
 import { formatJOD } from '../utils/currency';
 
 export default function HomePage() {
@@ -11,19 +11,24 @@ export default function HomePage() {
 
     const [featured, setFeatured] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
+    const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
-        getProducts({ per_page: 20 })
-            .then((res) => {
-                const items = res.data || [];
-                setAllProducts(items);
-                setFeatured(items.filter(item => item.featured).slice(0, 8));
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        Promise.all([
+            getProducts({ per_page: 20 }),
+            getCollections()
+        ]).then(([productsRes, collectionsRes]) => {
+            const items = productsRes.data || [];
+            setAllProducts(items);
+            setFeatured(items.filter(item => item.featured).slice(0, 8));
+            
+            // Only show active collections on the homepage
+            setCollections((collectionsRes || []).filter(c => c.is_active));
+        }).finally(() => {
+            setLoading(false);
+        });
     }, []);
 
     const categories = useMemo(() => {
@@ -84,21 +89,32 @@ export default function HomePage() {
                 </div>
                 
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    {categories.map((cat, idx) => (
+                    {collections.map((col, idx) => (
                         <Link 
-                            key={cat} 
-                            to={`/shop?category=${cat}`} 
+                            key={col.id} 
+                            to={`/shop?collection=${col.id}`} 
                             className="group relative aspect-[3/4] overflow-hidden bg-white/5"
                         >
                             <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 transition-transform duration-700 group-hover:scale-150">
                                 {idx + 1}
                             </div>
                             <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
-                                <h3 className="text-xl font-black uppercase tracking-widest transition-transform duration-500 group-hover:-translate-y-2">{cat}</h3>
+                                <h3 className="text-xl font-black uppercase tracking-widest text-center transition-transform duration-500 group-hover:-translate-y-2">{col.name}</h3>
+                                {col.description && (
+                                    <p className="mt-4 text-[10px] text-center text-slate-400 opacity-0 transition-all duration-500 group-hover:opacity-100 line-clamp-2">
+                                        {col.description}
+                                    </p>
+                                )}
                                 <span className="mt-4 text-[10px] font-black uppercase tracking-[0.3em] text-[#f6eace] opacity-0 transition-all duration-500 group-hover:opacity-100">{t('view_collection')}</span>
                             </div>
                         </Link>
                     ))}
+                    
+                    {collections.length === 0 && (
+                        <div className="col-span-full text-center text-slate-500 text-xs font-black uppercase tracking-widest py-10">
+                            {t('admin_no_collections')}
+                        </div>
+                    )}
                 </div>
             </section>
 
