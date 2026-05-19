@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 export default function Header({ user, onLogout }) {
     const { itemsCount } = useCart();
-    const { t, toggleLanguage } = useLanguage();
+    const { t, toggleLanguage, isArabic } = useLanguage();
     const [accountOpen, setAccountOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const accountMenuRef = useRef(null);
@@ -156,20 +156,30 @@ export default function Header({ user, onLogout }) {
                 </div>
             </div>
 
-            {/* Mobile Fullscreen Drawer */}
-            {mobileMenuOpen && (
-                <div className="fixed inset-0 z-[100] flex flex-col bg-[#04080f]/95 backdrop-blur-3xl animate-in slide-in-from-bottom-5 fade-in duration-300 lg:hidden">
-                    <div className="flex items-center justify-between px-4 py-4 sm:px-8 border-b border-white/10">
+            {/* Mobile Sidebar Menu Drawer */}
+            <div className={`fixed inset-0 z-[100] lg:hidden transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+                {/* Backdrop */}
+                <div onClick={() => setMobileMenuOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                
+                {/* Drawer Panel */}
+                <div className={`absolute top-0 bottom-0 w-80 max-w-[85vw] bg-[#04080f]/95 backdrop-blur-2xl shadow-2xl flex flex-col transition-transform duration-300 ${
+                    isArabic 
+                        ? (mobileMenuOpen ? 'right-0 translate-x-0' : 'right-0 translate-x-full') 
+                        : (mobileMenuOpen ? 'left-0 translate-x-0' : 'left-0 -translate-x-full')
+                }`}>
+                    {/* Header of Drawer */}
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
                         <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3">
-                            <img src="/images/icon.png?v=1" alt="Logo" className="h-12 w-12 object-contain brightness-125" />
-                            <span className="text-xl font-black uppercase tracking-[0.25em] text-[#f6eace]">SIRIUS</span>
+                            <img src="/images/icon.png?v=1" alt="Logo" className="h-10 w-10 object-contain brightness-125" />
+                            <span className="text-lg font-black uppercase tracking-[0.25em] text-[#f6eace]">SIRIUS</span>
                         </Link>
                         <button onClick={() => setMobileMenuOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-colors">
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
-                    
-                    <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6">
+
+                    {/* Nav Items */}
+                    <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
                         <nav className="flex flex-col gap-3">
                             {navItems.map((item) => (
                                 <NavLink
@@ -178,9 +188,9 @@ export default function Header({ user, onLogout }) {
                                     end={item.end}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={({ isActive }) => 
-                                        `rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+                                        `rounded-2xl px-6 py-4 text-xs font-black uppercase transition-all duration-300 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'} ${
                                             isActive 
-                                            ? 'bg-white/10 text-[#f6eace] border border-[#f6eace]/20 shadow-[0_0_15px_rgba(246,234,206,0.05)]' 
+                                            ? 'bg-[#f6eace]/10 text-[#f6eace] border border-[#f6eace]/20 shadow-[0_0_15px_rgba(246,234,206,0.05)]' 
                                             : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent'
                                         }`
                                     }
@@ -190,13 +200,14 @@ export default function Header({ user, onLogout }) {
                             ))}
                         </nav>
 
-                        <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-white/10">
+                        {/* Bottom Actions */}
+                        <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-white/10 shrink-0">
                             <button
                                 onClick={() => {
                                     toggleLanguage();
                                     setMobileMenuOpen(false);
                                 }}
-                                className="flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-white/80 hover:bg-white/5 hover:text-white transition-all border border-white/5 bg-white/5"
+                                className={`flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase text-white/80 hover:bg-white/5 hover:text-white transition-all border border-white/5 bg-white/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
                             >
                                 <span>{t('language') === 'English' ? 'Switch to Arabic' : 'التبديل للانجليزية'}</span>
                                 <span>🌐</span>
@@ -208,7 +219,7 @@ export default function Header({ user, onLogout }) {
                                         setMobileMenuOpen(false);
                                         onLogout();
                                     }}
-                                    className="flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-red-400 hover:bg-red-500/10 transition-all border border-red-500/10 bg-red-500/5"
+                                    className={`flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase text-red-400 hover:bg-red-500/10 transition-all border border-red-500/10 bg-red-500/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
                                 >
                                     <span>{t('logout')} ({displayUser.split(' ')[0]})</span>
                                     <span>🚪</span>
@@ -217,7 +228,7 @@ export default function Header({ user, onLogout }) {
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
         </header>
     );
 }

@@ -17,9 +17,14 @@ class CollectionApiController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable',
             'is_active' => 'boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('collections', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
 
         $collection = \App\Models\Collection::create($validated);
         return response()->json($collection, 201);
@@ -30,9 +35,14 @@ class CollectionApiController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable',
             'is_active' => 'boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('collections', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
 
         $collection->update($validated);
         return response()->json($collection);

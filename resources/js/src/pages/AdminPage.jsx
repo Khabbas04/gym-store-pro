@@ -80,22 +80,45 @@ export default function AdminPage({ section = 'overview' }) {
     const stats = useMemo(() => dashboard?.stats ?? {}, [dashboard]);
 
     // Collections logic
-    const [collectionForm, setCollectionForm] = useState({ name: '', description: '', is_active: true });
+    const [collectionForm, setCollectionForm] = useState({ name: '', description: '', is_active: true, image: '' });
     const [editingCollection, setEditingCollection] = useState(null);
+    const [collectionImageSourceType, setCollectionImageSourceType] = useState('url');
+    const [collectionImageFile, setCollectionImageFile] = useState(null);
 
     async function handleSaveCollection(e) {
         e.preventDefault();
         setError('');
         setMessage('');
         try {
+            let dataToSend;
+            const hasFile = collectionImageSourceType === 'file' && collectionImageFile;
+            
+            if (hasFile) {
+                const formData = new FormData();
+                formData.append('name', collectionForm.name);
+                formData.append('description', collectionForm.description || '');
+                formData.append('is_active', collectionForm.is_active ? '1' : '0');
+                formData.append('image', collectionImageFile);
+                dataToSend = formData;
+            } else {
+                dataToSend = {
+                    name: collectionForm.name,
+                    description: collectionForm.description || '',
+                    is_active: collectionForm.is_active,
+                    image: collectionImageSourceType === 'url' ? collectionForm.image : (editingCollection?.image || ''),
+                };
+            }
+
             if (editingCollection) {
-                await updateCollection(editingCollection.id, collectionForm);
+                await updateCollection(editingCollection.id, dataToSend);
                 setMessage(t('admin_collection_updated') || 'Collection updated');
             } else {
-                await createCollection(collectionForm);
+                await createCollection(dataToSend);
                 setMessage(t('admin_collection_created') || 'Collection created');
             }
-            setCollectionForm({ name: '', description: '', is_active: true });
+            setCollectionForm({ name: '', description: '', is_active: true, image: '' });
+            setCollectionImageFile(null);
+            setCollectionImageSourceType('url');
             setEditingCollection(null);
             await reload();
         } catch (err) {
@@ -707,7 +730,9 @@ export default function AdminPage({ section = 'overview' }) {
                                 <button
                                     onClick={() => {
                                         setEditingCollection(null);
-                                        setCollectionForm({ name: '', description: '', is_active: true });
+                                        setCollectionForm({ name: '', description: '', is_active: true, image: '' });
+                                        setCollectionImageSourceType('url');
+                                        setCollectionImageFile(null);
                                     }}
                                     className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white"
                                 >
@@ -737,6 +762,59 @@ export default function AdminPage({ section = 'overview' }) {
                                         placeholder="A brief description"
                                     />
                                 </div>
+                            </div>
+
+                            <div className="grid gap-6 md:grid-cols-2">
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_image_source') || 'Image Source'}</span>
+                                    <div className="grid grid-cols-2 gap-2 rounded-xl bg-black/45 p-1 border border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCollectionImageSourceType('url')}
+                                            className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${collectionImageSourceType === 'url' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.3)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                        >
+                                            🌐 {t('admin_image_link_url') || 'Link URL'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setCollectionImageSourceType('file')}
+                                            className={`rounded-lg py-2 text-[10px] font-black uppercase tracking-wider transition-all duration-300 ${collectionImageSourceType === 'file' ? 'bg-[#f6eace] text-black shadow-[0_0_15px_rgba(246,234,206,0.3)]' : 'text-slate-400 hover:text-white bg-white/5'}`}
+                                        >
+                                            📁 {t('admin_image_device_upload') || 'Device Upload'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {collectionImageSourceType === 'url' ? (
+                                    <div className="space-y-2 animate-in fade-in duration-300">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_image_url') || 'Cover Image URL'}</span>
+                                        <input 
+                                            type="text"
+                                            value={collectionForm.image} 
+                                            onChange={(e) => setCollectionForm({ ...collectionForm, image: e.target.value })} 
+                                            placeholder="https://images.unsplash.com/photo-..." 
+                                            className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-[#f6eace]/40 transition-all" 
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2 animate-in fade-in duration-300">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('admin_image_device_upload') || 'Upload Cover Image File'}</span>
+                                        <div className="relative flex h-14 w-full items-center justify-between rounded-xl border border-dashed border-white/20 bg-black/30 px-4 transition-all hover:border-[#f6eace]/30">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="absolute inset-0 cursor-pointer opacity-0"
+                                                onChange={(e) => setCollectionImageFile(e.target.files?.[0] || null)}
+                                            />
+                                            <span className="text-xs font-bold text-slate-400 truncate">
+                                                {collectionImageFile ? collectionImageFile.name : (collectionForm.image || t('admin_no_file_chosen') || 'No file selected')}
+                                            </span>
+                                            <button type="button" className="rounded-lg bg-white/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[#f6eace]">
+                                                Browse
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
@@ -771,6 +849,11 @@ export default function AdminPage({ section = 'overview' }) {
                                         {collection.products_count} {t('admin_products') || 'Products'}
                                     </span>
                                 </div>
+                                {collection.image && (
+                                    <div className="h-36 w-full rounded-2xl overflow-hidden mb-4 border border-white/10 relative bg-black/50">
+                                        <img src={collection.image} alt={collection.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                                    </div>
+                                )}
                                 <h4 className="text-xl font-black text-white">{collection.name}</h4>
                                 {collection.description && <p className="mt-2 text-xs text-slate-400 line-clamp-2">{collection.description}</p>}
                                 
@@ -778,7 +861,9 @@ export default function AdminPage({ section = 'overview' }) {
                                     <button 
                                         onClick={() => {
                                             setEditingCollection(collection);
-                                            setCollectionForm({ name: collection.name, description: collection.description || '', is_active: collection.is_active });
+                                            setCollectionForm({ name: collection.name, description: collection.description || '', is_active: collection.is_active, image: collection.image || '' });
+                                            setCollectionImageSourceType('url');
+                                            setCollectionImageFile(null);
                                             window.scrollTo({ top: 0, behavior: 'smooth' });
                                         }}
                                         className="flex-1 rounded-xl border border-blue-400/20 bg-blue-400/5 py-2.5 text-center text-[10px] font-black uppercase tracking-widest text-blue-300 transition-all hover:bg-blue-400/15"

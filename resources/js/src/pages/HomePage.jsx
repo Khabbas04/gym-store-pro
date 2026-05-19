@@ -93,15 +93,31 @@ export default function HomePage() {
                         <Link 
                             key={col.id} 
                             to={`/shop?collection=${col.id}`} 
-                            className="group relative aspect-[3/4] overflow-hidden bg-white/5"
+                            className="group relative aspect-[3/4] overflow-hidden bg-white/5 rounded-3xl border border-white/10 transition-all hover:border-[#f6eace]/30"
                         >
-                            <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 transition-transform duration-700 group-hover:scale-150">
-                                {idx + 1}
-                            </div>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
-                                <h3 className="text-xl font-black uppercase tracking-widest text-center transition-transform duration-500 group-hover:-translate-y-2">{col.name}</h3>
+                            {col.image ? (
+                                <div className="absolute inset-0">
+                                    <img 
+                                        src={col.image} 
+                                        alt={col.name} 
+                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                    />
+                                    {/* Overlay for legibility */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="absolute inset-0 flex items-center justify-center text-8xl font-black text-white/5 transition-transform duration-700 group-hover:scale-150">
+                                        {idx + 1}
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                                </>
+                            )}
+                            
+                            <div className="absolute inset-0 flex flex-col items-center justify-end p-8 pb-12 z-10">
+                                <h3 className="text-xl font-black uppercase tracking-widest text-center transition-transform duration-500 group-hover:-translate-y-2 text-white">{col.name}</h3>
                                 {col.description && (
-                                    <p className="mt-4 text-[10px] text-center text-slate-400 opacity-0 transition-all duration-500 group-hover:opacity-100 line-clamp-2">
+                                    <p className="mt-4 text-[10px] text-center text-slate-300 opacity-0 transition-all duration-500 group-hover:opacity-100 line-clamp-2">
                                         {col.description}
                                     </p>
                                 )}

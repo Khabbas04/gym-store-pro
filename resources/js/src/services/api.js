@@ -109,17 +109,29 @@ export function getCollections() {
 }
 
 export function createCollection(data) {
+    const isFormData = data instanceof FormData;
     return request('/api/admin/collections', {
         method: 'POST',
-        headers: withAuthHeaders({
-            ...JSON_HEADERS,
-            'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify(data),
+        headers: withAuthHeaders(
+            isFormData ? JSON_HEADERS : { ...JSON_HEADERS, 'Content-Type': 'application/json' }
+        ),
+        body: isFormData ? data : JSON.stringify(data),
     });
 }
 
 export function updateCollection(id, data) {
+    const isFormData = data instanceof FormData;
+    if (isFormData) {
+        if (!data.has('_method')) {
+            data.append('_method', 'PUT');
+        }
+        return request(`/api/admin/collections/${id}`, {
+            method: 'POST',
+            headers: withAuthHeaders(JSON_HEADERS),
+            body: data,
+        });
+    }
+
     return request(`/api/admin/collections/${id}`, {
         method: 'PUT',
         headers: withAuthHeaders({
