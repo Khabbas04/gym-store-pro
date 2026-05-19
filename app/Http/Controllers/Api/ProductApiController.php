@@ -39,8 +39,8 @@ class ProductApiController extends Controller
 
     public function show(Product $product): JsonResponse
     {
-        $hasReviews = Schema::hasTable('product_reviews');
-        $hasOrderItems = Schema::hasTable('order_items');
+        $hasReviews = true;
+        $hasOrderItems = true;
 
         $product->load('collections');
 
@@ -145,7 +145,7 @@ class ProductApiController extends Controller
     {
         $sections = $this->productService->getHomepageSections();
 
-        $hasReviews = Schema::hasTable('product_reviews');
+        $hasReviews = true;
         $homepageReviews = [];
         if ($hasReviews) {
             $homepageReviews = \App\Models\ProductReview::query()

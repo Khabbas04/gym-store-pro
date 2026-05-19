@@ -18,21 +18,12 @@ class EngagementApiController extends Controller
 {
     public function myWishlist(Request $request): JsonResponse
     {
-        if (! Schema::hasTable('wishlists')) {
-            return response()->json([
-                'data' => [],
-                'meta' => ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 0],
-            ]);
-        }
-
         $items = $request->user()
             ->wishlistProducts()
             ->latest('wishlists.created_at')
             ->paginate(12);
 
-        if (Schema::hasTable('product_reviews')) {
-            $items->getCollection()->loadAvg('reviews', 'rating')->loadCount('reviews');
-        }
+        $items->getCollection()->loadAvg('reviews', 'rating')->loadCount('reviews');
 
         return response()->json([
             'data' => ProductResource::collection($items->items()),
@@ -47,9 +38,6 @@ class EngagementApiController extends Controller
 
     public function toggleWishlist(Request $request, Product $product): JsonResponse
     {
-        if (! Schema::hasTable('wishlists')) {
-            return response()->json(['wishlisted' => false]);
-        }
 
         $user = $request->user();
 
@@ -77,12 +65,6 @@ class EngagementApiController extends Controller
 
     public function reviews(Product $product): JsonResponse
     {
-        if (! Schema::hasTable('product_reviews')) {
-            return response()->json([
-                'data' => [],
-                'meta' => ['current_page' => 1, 'last_page' => 1, 'per_page' => 10, 'total' => 0],
-            ]);
-        }
 
         $reviews = ProductReview::query()
             ->where('product_id', $product->id)
@@ -104,9 +86,6 @@ class EngagementApiController extends Controller
 
     public function homepageReviews(Request $request): JsonResponse
     {
-        if (! Schema::hasTable('product_reviews')) {
-            return response()->json([]);
-        }
 
         $reviews = ProductReview::query()
             ->where('status', 'approved')
@@ -121,9 +100,6 @@ class EngagementApiController extends Controller
 
     public function upsertReview(StoreReviewRequest $request, Product $product): JsonResponse
     {
-        if (! Schema::hasTable('product_reviews')) {
-            return response()->json(['message' => 'Reviews are unavailable right now.'], 200);
-        }
 
         // Validate that user has purchased the product (completed order / exists in order_items)
         $hasOrdered = \App\Models\Order::query()
@@ -150,9 +126,6 @@ class EngagementApiController extends Controller
 
     public function markRecentlyViewed(Request $request, Product $product): JsonResponse
     {
-        if (! Schema::hasTable('recently_viewed_products')) {
-            return response()->json(['ok' => true]);
-        }
 
         RecentlyViewedProduct::query()->updateOrCreate(
             [
@@ -169,30 +142,18 @@ class EngagementApiController extends Controller
 
     public function myRecentlyViewed(Request $request): JsonResponse
     {
-        if (! Schema::hasTable('recently_viewed_products')) {
-            return response()->json([]);
-        }
-
         $products = $request->user()
             ->recentlyViewedProducts()
             ->take(12)
             ->get();
 
-        if (Schema::hasTable('product_reviews')) {
-            $products->loadAvg('reviews', 'rating')->loadCount('reviews');
-        }
+        $products->loadAvg('reviews', 'rating')->loadCount('reviews');
 
         return response()->json(ProductResource::collection($products));
     }
 
     public function adminReviews(Request $request): JsonResponse
     {
-        if (! Schema::hasTable('product_reviews')) {
-            return response()->json([
-                'data' => [],
-                'meta' => ['current_page' => 1, 'last_page' => 1, 'per_page' => 15, 'total' => 0],
-            ]);
-        }
 
         $reviews = ProductReview::query()
             ->with(['user', 'product'])

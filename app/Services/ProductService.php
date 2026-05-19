@@ -233,24 +233,11 @@ class ProductService
 
     private function supportsStockColumns(): bool
     {
-        if ($this->hasStockColumns !== null) {
-            return $this->hasStockColumns;
-        }
-
-        $this->hasStockColumns = Schema::hasColumn('products', 'stock_quantity')
-            && Schema::hasColumn('products', 'is_popular');
-
-        return $this->hasStockColumns;
+        return true;
     }
 
     private function supportsReviews(): bool
     {
-        if ($this->hasReviewsTable !== null) {
-            return $this->hasReviewsTable;
-        }
-
-        $this->hasReviewsTable = Schema::hasTable('product_reviews');
-
-        return $this->hasReviewsTable;
+        return true;
     }
 }
