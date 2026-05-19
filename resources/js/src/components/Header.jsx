@@ -179,8 +179,8 @@ export default function Header({ user, onLogout }) {
                     </div>
 
                     {/* Nav Items */}
-                    <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
-                        <nav className="flex flex-col gap-3">
+                    <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-4">
+                        <nav className="flex flex-col gap-2">
                             {navItems.map((item) => (
                                 <NavLink
                                     key={item.to}
@@ -188,7 +188,7 @@ export default function Header({ user, onLogout }) {
                                     end={item.end}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={({ isActive }) => 
-                                        `rounded-2xl px-6 py-4 text-xs font-black uppercase transition-all duration-300 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'} ${
+                                        `rounded-xl px-5 py-2.5 text-xs font-black uppercase transition-all duration-300 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'} ${
                                             isActive 
                                             ? 'bg-[#f6eace]/10 text-[#f6eace] border border-[#f6eace]/20 shadow-[0_0_15px_rgba(246,234,206,0.05)]' 
                                             : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent'
@@ -201,13 +201,13 @@ export default function Header({ user, onLogout }) {
                         </nav>
 
                         {/* Bottom Actions */}
-                        <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-white/10 shrink-0">
+                        <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-white/10 shrink-0">
                             <button
                                 onClick={() => {
                                     toggleLanguage();
                                     setMobileMenuOpen(false);
                                 }}
-                                className={`flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase text-white/80 hover:bg-white/5 hover:text-white transition-all border border-white/5 bg-white/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
+                                className={`flex items-center justify-between rounded-xl px-5 py-2.5 text-xs font-black uppercase text-white/80 hover:bg-white/5 hover:text-white transition-all border border-white/5 bg-white/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
                             >
                                 <span>{t('language') === 'English' ? 'Switch to Arabic' : 'التبديل للانجليزية'}</span>
                                 <span>🌐</span>
@@ -219,7 +219,7 @@ export default function Header({ user, onLogout }) {
                                         setMobileMenuOpen(false);
                                         onLogout();
                                     }}
-                                    className={`flex items-center justify-between rounded-2xl px-6 py-4 text-xs font-black uppercase text-red-400 hover:bg-red-500/10 transition-all border border-red-500/10 bg-red-500/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
+                                    className={`flex items-center justify-between rounded-xl px-5 py-2.5 text-xs font-black uppercase text-red-400 hover:bg-red-500/10 transition-all border border-red-500/10 bg-red-500/5 ${isArabic ? 'tracking-normal' : 'tracking-[0.2em]'}`}
                                 >
                                     <span>{t('logout')} ({displayUser.split(' ')[0]})</span>
                                     <span>🚪</span>
