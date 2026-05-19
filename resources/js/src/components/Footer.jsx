@@ -56,23 +56,14 @@ export default function Footer() {
                     <p className="text-xs font-medium text-slate-500">
                         © {new Date().getFullYear()} SIRIUS. {t('footer_rights')}
                     </p>
-                    <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
-                            {language === 'ar' ? 'تم تطوير الموقع بواسطة' : 'Website Developed by'}
-                        </span>
-                        <a 
-                            href="https://scratchstack.co" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 group transition-opacity hover:opacity-80"
-                        >
-                            <img 
-                                src="/images/scratchstack.png" 
-                                alt="ScratchStack Logo" 
-                                className="h-5 object-contain brightness-0 invert opacity-70 group-hover:opacity-100 transition-opacity" 
-                            />
-                        </a>
-                    </div>
+                    <a 
+                        href="https://www.linkedin.com/in/asem-alkhabbas-667471371/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-black uppercase tracking-widest text-[#f6eace]/60 hover:text-[#f6eace] transition-colors"
+                    >
+                        {language === 'ar' ? 'تطوير Asem Alkhabbas' : 'Developed by Asem Alkhabbas'}
+                    </a>
                 </div>
             </div>
         </footer>
