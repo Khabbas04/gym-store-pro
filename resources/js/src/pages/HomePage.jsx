@@ -52,71 +52,25 @@ export default function HomePage() {
 
     return (
         <div className="bg-[#02040a] text-white overflow-x-hidden">
-            {/* Hero Section - Editorial Monument */}
-            <section className="relative h-screen w-full overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_12%_10%,rgba(246,234,206,0.12),transparent_60%),radial-gradient(800px_500px_at_80%_15%,rgba(90,110,160,0.18),transparent_70%),linear-gradient(135deg,rgba(2,4,10,1),rgba(6,10,18,1))]" />
-                <div className="absolute inset-0 opacity-35 bg-[repeating-linear-gradient(120deg,rgba(255,255,255,0.06)_0,rgba(255,255,255,0.06)_2px,transparent_2px,transparent_140px)]" />
-
-                <div className="relative mx-auto flex h-full max-w-[1700px] flex-col items-stretch gap-14 px-6 pt-24 sm:px-12 lg:flex-row lg:items-center">
-                    {/* Left: Monument text */}
-                    <div className="flex-1 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
-                        <div className="mx-auto lg:mx-0 inline-flex items-center gap-4 rounded-full border border-white/10 bg-white/5 px-5 py-2 text-[10px] font-black uppercase tracking-[0.4em] text-[#f6eace]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#f6eace] shadow-[0_0_8px_#f6eace]" />
+            {/* Hero Section - Full Immersive */}
+            <section className="relative h-screen w-full">
+                
+                <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                        <span className="mb-6 block text-[11px] font-black uppercase tracking-[0.6em] text-[#f6eace] opacity-80">
                             {t('home_hero_caption')}
-                        </div>
-                        <h1 className="mt-10 text-5xl font-black uppercase tracking-tight text-white sm:text-7xl lg:text-[8.5rem] leading-[1.02]">
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace]">SIRIUS</span>
-                            <span className="block">{t('home_title')}</span>
+                        </span>
+                        <h1 className="max-w-6xl text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f6eace] to-white sm:text-7xl lg:text-[9rem] leading-[1.15] py-3 animate-in zoom-in-95 duration-1000">
+                            {t('home_title')}
                         </h1>
-                        <p className="mt-10 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed mx-auto lg:mx-0">
+                        <p className="mx-auto mt-12 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-slate-400 leading-relaxed">
                             {t('home_brand_subtitle')}
                         </p>
-                        <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-5">
-                            <Link to="/shop" className="group relative overflow-hidden rounded-full bg-[#f6eace] px-12 py-4 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
+                        <div className="mt-16 flex flex-wrap justify-center gap-8">
+                            <Link to="/shop" className="group relative overflow-hidden bg-[#f6eace] px-16 py-6 text-xs font-black uppercase tracking-[0.3em] text-black transition-transform active:scale-95">
                                 <span className="relative z-10">{t('explore_shop')}</span>
                                 <div className="absolute inset-0 -translate-x-full bg-white transition-transform duration-500 group-hover:translate-x-0" />
                             </Link>
-                            <Link to="/shop?featured=1" className="rounded-full border border-white/15 bg-white/5 px-10 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-white/80 transition-colors hover:text-white hover:border-white/30">
-                                {t('featured')}
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Right: Feature showcase */}
-                    <div className="relative flex-1 max-w-xl mx-auto lg:mx-0 animate-in fade-in slide-in-from-right-8 duration-1000">
-                        <div className="relative rounded-[32px] border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.02] p-6 backdrop-blur-2xl">
-                            <div className="absolute -top-6 right-6 rounded-full border border-white/10 bg-black/50 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.3em] text-white/70">
-                                {t('featured')}
-                            </div>
-                            <div className="aspect-[4/5] overflow-hidden rounded-3xl border border-white/10 bg-black/30">
-                                <img
-                                    src={heroProduct?.image || '/images/product-placeholder.svg'}
-                                    alt={heroProduct?.name || 'Product'}
-                                    className="h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
-                                />
-                            </div>
-                            <div className="mt-6 flex items-center justify-between">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{heroProduct?.category || t('featured')}</p>
-                                    <h3 className="mt-2 text-sm font-black uppercase tracking-widest text-white">
-                                        {heroProduct?.name || t('home_title')}
-                                    </h3>
-                                </div>
-                                <p className="text-sm font-black text-[#f6eace]">
-                                    {heroProduct ? formatJOD(heroProduct.price, language) : ''}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 grid grid-cols-2 gap-4">
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left">
-                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('happy_customers')}</p>
-                                <p className="mt-2 text-2xl font-black text-white">50+</p>
-                            </div>
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-left">
-                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">{t('premium_quality')}</p>
-                                <p className="mt-2 text-2xl font-black text-white">100%</p>
-                            </div>
                         </div>
                     </div>
                 </div>
