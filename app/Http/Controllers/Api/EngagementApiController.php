@@ -10,12 +10,18 @@ use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\RecentlyViewedProduct;
 use App\Models\Wishlist;
+use App\Services\ActivityLogService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
 class EngagementApiController extends Controller
 {
+    public function __construct(
+        private readonly ActivityLogService $activityLogService,
+    ) {
+    }
+
     public function myWishlist(Request $request): JsonResponse
     {
         $items = $request->user()
@@ -119,6 +125,17 @@ class EngagementApiController extends Controller
                 'user_id' => $request->user()->id,
             ],
             array_merge($request->validated(), ['status' => 'pending'])
+        );
+
+        $this->activityLogService->log(
+            $review->wasRecentlyCreated ? 'review.submitted' : 'review.updated',
+            $review,
+            $request->user(),
+            [
+                'product_id' => $product->id,
+                'rating' => $review->rating,
+                'status' => $review->status,
+            ]
         );
 
         return response()->json(ReviewResource::make($review->load('user')));

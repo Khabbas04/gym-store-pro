@@ -173,7 +173,7 @@ export default function HomePage() {
                                     {t('featured')}
                                 </span>
                             </div>
-                            <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl">
+                            <h2 className="text-3xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-[#f6eace] sm:text-5xl leading-[1.15] pb-2">
                                 {t('featured_picks')}
                             </h2>
                         </div>
