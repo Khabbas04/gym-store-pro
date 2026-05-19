@@ -55,14 +55,18 @@ export default function HomePage() {
             {/* Hero Section - Full Immersive */}
             <section className="relative h-screen w-full">
                 <div className="absolute inset-0">
-                    <img 
-                        src="/images/hero-luxury-v2.png" 
-                        alt="Sirius Luxury Gym" 
-                        className="h-full w-full object-cover"
-                    />
+                    {/* Galaxy-inspired background */}
+                    <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_20%_10%,rgba(246,234,206,0.12),transparent_60%),radial-gradient(900px_500px_at_80%_20%,rgba(120,160,255,0.10),transparent_65%),radial-gradient(700px_400px_at_60%_80%,rgba(120,255,210,0.08),transparent_70%),radial-gradient(900px_700px_at_50%_50%,rgba(8,12,24,0.9),rgba(2,4,10,1))]" />
+                    <div className="absolute inset-0 opacity-80" style={{
+                        backgroundImage: 'radial-gradient(1px 1px at 12% 20%, rgba(255,255,255,0.5) 40%, transparent 41%), radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,0.6) 40%, transparent 41%), radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,0.5) 40%, transparent 41%), radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 70% 55%, rgba(255,255,255,0.35) 40%, transparent 41%)',
+                        backgroundSize: '100% 100%'
+                    }} />
+                    <div className="absolute inset-0 opacity-50" style={{
+                        backgroundImage: 'radial-gradient(1px 1px at 10% 90%, rgba(255,255,255,0.45) 40%, transparent 41%), radial-gradient(1px 1px at 35% 40%, rgba(255,255,255,0.35) 40%, transparent 41%), radial-gradient(1px 1px at 90% 65%, rgba(255,255,255,0.4) 40%, transparent 41%), radial-gradient(1px 1px at 60% 15%, rgba(255,255,255,0.35) 40%, transparent 41%), radial-gradient(1px 1px at 45% 55%, rgba(255,255,255,0.35) 40%, transparent 41%)',
+                        backgroundSize: '100% 100%'
+                    }} />
                     {/* Multi-layered overlay for depth */}
-                    <div className="absolute inset-0 bg-black/40" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-[#02040a]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#02040a]" />
                 </div>
                 
                 <div className="relative flex h-full flex-col items-center justify-center px-6 text-center">
