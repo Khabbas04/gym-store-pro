@@ -56,9 +56,23 @@ export default function Footer() {
                     <p className="text-xs font-medium text-slate-500">
                         © {new Date().getFullYear()} SIRIUS. {t('footer_rights')}
                     </p>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#f6eace]/60">
-                        {t('footer_developed_by')}
-                    </p>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                            {language === 'ar' ? 'تم تطوير الموقع بواسطة' : 'Website Developed by'}
+                        </span>
+                        <a 
+                            href="https://scratchstack.co" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 group transition-opacity hover:opacity-80"
+                        >
+                            <img 
+                                src="/images/scratchstack.png" 
+                                alt="ScratchStack Logo" 
+                                className="h-5 object-contain brightness-0 invert opacity-70 group-hover:opacity-100 transition-opacity" 
+                            />
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>
